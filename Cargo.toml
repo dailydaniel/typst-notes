@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "notes-core",
+    "notes-cli",
+]
+resolver = "2"

@@ -1,0 +1,15 @@
+[package]
+name = "notes-cli"
+version = "0.1.0"
+edition = "2021"
+description = "CLI for typst-notes"
+
+[[bin]]
+name = "notes"
+path = "src/main.rs"
+
+[dependencies]
+notes-core = { path = "../notes-core" }
+clap = { version = "4", features = ["derive"] }
+colored = "2"
+serde_json = "1"
