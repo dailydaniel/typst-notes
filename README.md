@@ -51,13 +51,20 @@ This generates:
 ### Create notes
 
 ```bash
-notes new "Rust Basics" --type note --tags rust,programming
-notes new "Build MVP" --type task --tags dev,mvp
-notes new "Closures" --type card --parent rust-basics --tags rust
-notes new "Rust" --type tag
+notes new "Build MVP" --type task
+notes new "programming/rust" --type note
+notes new "programming/rust/closures" --type card
+notes new "programming/python"
 ```
 
-Each command creates a `.typ` file and registers it in `note-paths.csv`. Note types: `note`, `task`, `card`, `tag`.
+The path syntax (`/`) creates a hierarchy. Parent notes are auto-created if they don't exist. Each command creates a `.typ` file in `notes/` with `--` as the path separator in the filename:
+
+```
+notes/build-mvp.typ                  → id: "build-mvp"
+notes/programming.typ                → id: "programming"
+notes/programming--rust.typ          → id: "programming/rust"
+notes/programming--rust--closures.typ → id: "programming/rust/closures"
+```
 
 ### Build the index
 
@@ -72,34 +79,30 @@ Parses all registered `.typ` files, extracts metadata and `xlink` calls, writes 
 
 ```bash
 notes list
-# ID                   TITLE                          TYPE     TAGS
+# ID                             TITLE          TYPE     PARENT
 # ---------------------------------------------------------------------------
-# welcome              Welcome                        note
-# rust-basics          Rust Basics                    note     rust, programming
-# build-mvp            Build MVP                      task     dev, mvp
-# closures             Closures                       card     rust
-# rust                 Rust                           tag
+# welcome                        Welcome        note
+# build-mvp                      Build MVP      task
+# programming                    programming    note
+# programming/rust               rust           note     programming
+# programming/rust/closures      closures       card     programming/rust
+# programming/python             python         note     programming
 
-notes list --type task
+notes list --type card
 notes list --format json
 
 notes search "rust"
-#   rust-basics — Rust Basics [rust, programming]
-#   closures — Closures [rust]
-#   rust — Rust
-# 3 result(s)
+#   programming/rust — rust (note)
+#   programming/rust/closures — closures (card)
+# 2 result(s)
 
-notes backlinks rust
-# Backlinks for "rust":
-#   rust-basics — Rust Basics (note)
-#   closures — Closures (card)
+notes backlinks "programming/rust"
+# Backlinks for "programming/rust":
+#   programming/rust/closures — closures (card)
 
 notes graph
-# Graph: 5 nodes, 4 edges
-#   rust-basics -> rust
-#   build-mvp -> welcome
-#   closures -> rust-basics
-#   closures -> rust
+# Graph: 5 nodes, 2 edges
+#   programming/rust/closures -> programming/rust
 
 notes graph --format json
 ```
@@ -118,34 +121,42 @@ Scans `notes/*.typ`, updates `note-paths.csv`, rebuilds the index.
 ### Compile notes
 
 ```bash
-typst compile --root . notes/rust-basics.typ
+typst compile --root . notes/programming--rust--closures.typ
 ```
 
-Compilation uses the standard `typst` CLI. The `--root .` flag is needed so notes can import `vault.typ` from the vault root.
+Compilation uses the standard `typst` CLI. The `--root .` flag is needed so notes can import `vault.typ` from the vault root. Each compiled note includes a metadata header block (type, id, parent, custom fields) and backlinks at the bottom.
 
 ## Writing Notes
 
-A note is a regular `.typ` file:
+A note is a regular `.typ` file. The title heading is rendered automatically — no need to write `= Title` manually:
 
 ```typst
 #import "../vault.typ": *
 
-#show: task.with(
-  id: "build-mvp",
-  title: "Build MVP",
-  tags: ("dev", "mvp"),
+#show: card.with(
+  title: "closures",
+  tags: ("rust", "fp", "@programming/python"),
+  difficulty: "hard",
 )
 
-= Build MVP
-
-Implement the core features. See #xlink("rust-basics") for language reference.
+Closures capture variables from their environment.
+See also #xlink("programming/rust/traits").
 ```
 
-**`#show: type.with(...)`** — registers the note with typed metadata. The `id` must be a unique string literal (AST extraction only works with literals).
+**`#show: type.with(title: "...")`** — registers the note with typed metadata. The `id` and `parent` are derived from the filename automatically — you only need to specify `title` and any custom fields.
 
-**`#xlink("note-id")`** — cross-reference to another note. Renders as the target note's title (resolved from the index). Shows red "not found" if the target doesn't exist.
+### Cross-references
+
+There are two ways to link to other notes:
+
+- **In properties** — use `"@id"` string: `tags: ("rust", "@programming/python")`. Rendered as a clickable link in the metadata block, and indexed by `notes index`.
+- **In body text** — use `#xlink("id")`: `See #xlink("programming/rust")`. Rendered as an inline link with the target note's title.
+
+Both are indexed as links and appear in backlinks of the target note.
 
 **Backlinks** are rendered automatically at the bottom of each note — no manual setup needed.
+
+**Metadata header** is rendered at the top of each compiled note showing all properties (title, type, id, parent, custom fields). Can be disabled with `show-meta: false` on the note type.
 
 ## Framework
 

@@ -93,10 +93,10 @@ mod tests {
         let mut vault = Vault::init(&vault_path).unwrap();
 
         vault
-            .new_note("Rust Basics", "note", None, None, &["rust", "programming"], &[])
+            .new_note("Rust Basics", "note", &[])
             .unwrap();
         vault
-            .new_note("Build MVP", "task", None, None, &["dev"], &[])
+            .new_note("Build MVP", "task", &[])
             .unwrap();
 
         // Add xlink from build-mvp to welcome
@@ -117,9 +117,9 @@ mod tests {
     }
 
     #[test]
-    fn test_search_by_tag() {
+    fn test_search_by_id() {
         let (_dir, vault) = setup_vault_with_notes();
-        let results = vault.search("programming").unwrap();
+        let results = vault.search("rust-basics").unwrap();
         assert_eq!(results.len(), 1);
         assert_eq!(results[0].id, "rust-basics");
     }

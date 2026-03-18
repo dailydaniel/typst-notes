@@ -66,23 +66,23 @@ mod tests {
         let mut vault = Vault::init(&vault_path).unwrap();
 
         vault
-            .new_note("Node A", "note", Some("a"), None, &[], &[])
+            .new_note("Node A", "note", &[])
             .unwrap();
         vault
-            .new_note("Node B", "note", Some("b"), None, &[], &[])
+            .new_note("Node B", "note", &[])
             .unwrap();
 
-        // Add link from a to b
-        let note_path = vault_path.join("notes/a.typ");
+        // Add link from node-a to node-b
+        let note_path = vault_path.join("notes/node-a.typ");
         let content = fs::read_to_string(&note_path).unwrap();
-        fs::write(&note_path, format!("{}\n#xlink(\"b\")\n", content)).unwrap();
+        fs::write(&note_path, format!("{}\n#xlink(\"node-b\")\n", content)).unwrap();
 
         vault.build_index().unwrap();
         let graph = vault.graph_data().unwrap();
 
-        assert_eq!(graph.nodes.len(), 3); // welcome + a + b
+        assert_eq!(graph.nodes.len(), 3); // welcome + node-a + node-b
         assert_eq!(graph.edges.len(), 1);
-        assert_eq!(graph.edges[0].source, "a");
-        assert_eq!(graph.edges[0].target, "b");
+        assert_eq!(graph.edges[0].source, "node-a");
+        assert_eq!(graph.edges[0].target, "node-b");
     }
 }

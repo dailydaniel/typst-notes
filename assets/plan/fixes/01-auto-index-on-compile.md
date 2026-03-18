@@ -105,18 +105,10 @@ Commands::Watch { file } => {
 }
 ```
 
-## Tauri integration
-
-Tauri frontend simply:
-1. Calls `watch` Tauri command when user opens a note
-2. Renders `assets/current.html` in an iframe/webview
-3. Watches `assets/current.html` for changes → refreshes preview
-
-No complex IPC needed — just a file on disk.
-
 ## Phase
 
-Part of Phase 5 (compilation) + Phase 6 (Tauri). `notify` crate dependency added in Phase 5.
+Part of Phase 5 (compilation). `notify` crate dependency added in Phase 5.
+Output to `assets/current.html` simplifies future Tauri integration — it just renders this file.
 
 ## Blocked by
 

@@ -113,7 +113,7 @@ mod tests {
 
         // Add a note with xlink to welcome
         vault
-            .new_note("Linked Note", "note", None, None, &[], &[])
+            .new_note("Linked Note", "note", &[])
             .unwrap();
 
         // Manually add xlink content
@@ -144,7 +144,7 @@ mod tests {
 
         // Add a note
         vault
-            .new_note("New Note", "note", None, None, &[], &[])
+            .new_note("New Note", "note", &[])
             .unwrap();
 
         // Incrementally update just the new note

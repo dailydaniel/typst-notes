@@ -25,8 +25,8 @@
   let idx = read-index(index)
   let note-state = state("notes-current-id", none)
 
-  let _note-type(name) = {
-    make-note-type(note-state, name, idx)
+  let _note-type(name, show-meta: true) = {
+    make-note-type(note-state, name, idx, show-meta: show-meta)
   }
 
   let _xlink = make-xlink(idx)

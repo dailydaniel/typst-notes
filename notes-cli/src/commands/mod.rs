@@ -34,14 +34,10 @@ pub fn init(path: &str) -> Result<(), NotesError> {
 pub fn new_note(
     title: &str,
     note_type: &str,
-    id: Option<&str>,
-    parent: Option<&str>,
-    tags: &[String],
 ) -> Result<(), NotesError> {
     let vault = open_vault()?;
-    let tag_refs: Vec<&str> = tags.iter().map(|s| s.as_str()).collect();
-    let meta = vault.new_note(title, note_type, id, parent, &tag_refs, &[])?;
-    println!("Created {} \"{}\" at {}", meta.note_type, meta.title, meta.path);
+    let meta = vault.new_note(title, note_type, &[])?;
+    println!("Created {} \"{}\" at {} (id: {})", meta.note_type, meta.title, meta.path, meta.id);
     Ok(())
 }
 
@@ -123,18 +119,23 @@ pub fn list(note_type: Option<&str>, format: &str) -> Result<(), NotesError> {
         _ => {
             // Table format
             println!(
-                "{:<20} {:<30} {:<8} {}",
-                "ID", "TITLE", "TYPE", "TAGS"
+                "{:<30} {:<25} {:<8} {}",
+                "ID", "TITLE", "TYPE", "PARENT"
             );
-            println!("{}", "-".repeat(75));
+            println!("{}", "-".repeat(80));
             for note in &notes {
-                let tags = note.tags.join(", ");
-                let title = if note.title.len() > 28 {
-                    format!("{}...", &note.title[..25])
+                let parent = note.parent.as_deref().unwrap_or("");
+                let id = if note.id.len() > 28 {
+                    format!("{}...", &note.id[..25])
+                } else {
+                    note.id.clone()
+                };
+                let title = if note.title.len() > 23 {
+                    format!("{}...", &note.title[..20])
                 } else {
                     note.title.clone()
                 };
-                println!("{:<20} {:<30} {:<8} {}", note.id, title, note.note_type, tags);
+                println!("{:<30} {:<25} {:<8} {}", id, title, note.note_type, parent);
             }
             println!("\n{} note(s)", notes.len());
         }

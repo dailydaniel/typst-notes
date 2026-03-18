@@ -1,5 +1,5 @@
 use crate::error::NotesError;
-use crate::types::NoteMetadata;
+use crate::types::{self, NoteMetadata};
 use typst_syntax::{ast, SyntaxNode};
 
 /// Result of parsing a single .typ file
@@ -10,49 +10,70 @@ pub struct AstExtraction {
 }
 
 /// Parse a .typ file and extract metadata + links from its AST.
+/// The `id` and `parent` are derived from `file_path`, not from the show rule.
 pub fn extract_from_file(source: &str, file_path: &str) -> Result<AstExtraction, NotesError> {
     let root = typst_syntax::parse(source);
-    let mut metadata = None;
+    let mut show_data = None;
     let mut links = Vec::new();
-    walk_node(&root, &mut metadata, &mut links, file_path);
+    walk_node(&root, &mut show_data, &mut links);
+
+    let metadata = show_data.map(|(note_type, title, created, extra, property_links)| {
+        let id = types::path_to_id(file_path);
+        let parent = types::id_to_parent(&id);
+        links.extend(property_links);
+        NoteMetadata {
+            id,
+            title,
+            note_type,
+            parent,
+            tags: Vec::new(),
+            created,
+            path: file_path.to_string(),
+            extra,
+        }
+    });
+
     Ok(AstExtraction { metadata, links })
 }
 
+type ShowData = (
+    String,                                    // note_type
+    String,                                    // title
+    Option<String>,                            // created
+    serde_json::Map<String, serde_json::Value>, // extra
+    Vec<String>,                               // @id links from properties
+);
+
 fn walk_node(
     node: &SyntaxNode,
-    metadata: &mut Option<NoteMetadata>,
+    show_data: &mut Option<ShowData>,
     links: &mut Vec<String>,
-    file_path: &str,
 ) {
-    // Try to match #show: type.with(...)
     if let Some(show_rule) = node.cast::<ast::ShowRule>() {
         if show_rule.selector().is_none() {
             let transform = show_rule.transform();
             if let ast::Expr::FuncCall(call) = transform {
-                if let Some(meta) = extract_note_constructor(call, file_path) {
-                    *metadata = Some(meta);
+                if let Some(data) = extract_note_constructor(call) {
+                    *show_data = Some(data);
                 }
             }
         }
     }
 
-    // Try to match #xlink(...) or #xlink(id: "...")
     if let Some(func_call) = node.cast::<ast::FuncCall>() {
         if let Some(target_id) = extract_xlink(func_call) {
             links.push(target_id);
         }
     }
 
-    // Recurse into children
     for child in node.children() {
-        walk_node(child, metadata, links, file_path);
+        walk_node(child, show_data, links);
     }
 }
 
-/// Extract NoteMetadata from a `type.with(id: "...", title: "...", ...)` call.
-fn extract_note_constructor(call: ast::FuncCall, file_path: &str) -> Option<NoteMetadata> {
-    let callee = call.callee();
-    let ast::Expr::FieldAccess(fa) = callee else {
+/// Extract type name, title, and extra fields from `type.with(title: "...", ...)`.
+fn extract_note_constructor(call: ast::FuncCall) -> Option<ShowData> {
+    let ast::Expr::FieldAccess(fa) = call.callee() else {
         return None;
     };
     if fa.field().as_str() != "with" {
@@ -63,12 +84,10 @@ fn extract_note_constructor(call: ast::FuncCall, file_path: &str) -> Option<Note
     };
     let type_name = type_ident.as_str().to_string();
 
-    let mut id = None;
     let mut title = None;
-    let mut parent = None;
-    let mut tags = Vec::new();
     let mut created = None;
     let mut extra = serde_json::Map::new();
+    let mut property_links = Vec::new();
 
     for arg in call.args().items() {
         let ast::Arg::Named(named) = arg else {
@@ -76,29 +95,20 @@ fn extract_note_constructor(call: ast::FuncCall, file_path: &str) -> Option<Note
         };
         let key = named.name().as_str();
         match key {
-            "id" => id = expr_to_string(named.expr()),
             "title" => title = expr_to_string(named.expr()),
-            "parent" => parent = expr_to_string(named.expr()),
-            "tags" => tags = expr_to_string_array(named.expr()),
             "created" => created = expr_to_string(named.expr()),
+            // Skip legacy fields — id, parent are derived from filename now
+            "id" | "parent" => {}
             _ => {
                 if let Some(val) = expr_to_json_value(named.expr()) {
+                    collect_at_links(&val, &mut property_links);
                     extra.insert(key.to_string(), val);
                 }
             }
         }
     }
 
-    Some(NoteMetadata {
-        id: id?,
-        title: title.unwrap_or_default(),
-        note_type: type_name,
-        parent,
-        tags,
-        created,
-        path: file_path.to_string(),
-        extra,
-    })
+    Some((type_name, title.unwrap_or_default(), created, extra, property_links))
 }
 
 /// Extract target id from xlink("id") or xlink(id: "id").
@@ -112,13 +122,11 @@ fn extract_xlink(call: ast::FuncCall) -> Option<String> {
 
     for arg in call.args().items() {
         match arg {
-            // xlink("note-id") — positional
             ast::Arg::Pos(expr) => {
                 if let Some(s) = expr_to_string(expr) {
                     return Some(s);
                 }
             }
-            // xlink(id: "note-id") — named
             ast::Arg::Named(named) => {
                 if named.name().as_str() == "id" {
                     return expr_to_string(named.expr());
@@ -130,7 +138,23 @@ fn extract_xlink(call: ast::FuncCall) -> Option<String> {
     None
 }
 
-/// Extract a string literal from an AST expression.
+/// Scan a JSON value for strings starting with "@" and collect the ids (without @).
+fn collect_at_links(value: &serde_json::Value, links: &mut Vec<String>) {
+    match value {
+        serde_json::Value::String(s) => {
+            if let Some(id) = s.strip_prefix('@') {
+                links.push(id.to_string());
+            }
+        }
+        serde_json::Value::Array(arr) => {
+            for item in arr {
+                collect_at_links(item, links);
+            }
+        }
+        _ => {}
+    }
+}
+
 fn expr_to_string(expr: ast::Expr) -> Option<String> {
     match expr {
         ast::Expr::Str(s) => Some(s.get().to_string()),
@@ -138,24 +162,6 @@ fn expr_to_string(expr: ast::Expr) -> Option<String> {
     }
 }
 
-/// Extract an array of string literals from an AST expression.
-fn expr_to_string_array(expr: ast::Expr) -> Vec<String> {
-    let ast::Expr::Array(arr) = expr else {
-        // Single string treated as one-element array
-        if let Some(s) = expr_to_string(expr) {
-            return vec![s];
-        }
-        return Vec::new();
-    };
-    arr.items()
-        .filter_map(|item| match item {
-            ast::ArrayItem::Pos(e) => expr_to_string(e),
-            _ => None,
-        })
-        .collect()
-}
-
-/// Convert an AST expression to a serde_json::Value (for extra fields).
 fn expr_to_json_value(expr: ast::Expr) -> Option<serde_json::Value> {
     match expr {
         ast::Expr::Str(s) => Some(serde_json::Value::String(s.get().to_string())),
@@ -180,75 +186,55 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_extract_show_rule_with_metadata() {
+    fn test_id_derived_from_filename() {
         let source = r#"
-#import "vault.typ": *
-
 #show: task.with(
-  id: "task-001",
   title: "Build MVP",
-  tags: ("dev", "mvp"),
-  parent: "project-root",
 )
-
-= Build MVP
-
-Some content here.
 "#;
-        let result = extract_from_file(source, "notes/task-001.typ").unwrap();
+        let result = extract_from_file(source, "notes/build-mvp.typ").unwrap();
         let meta = result.metadata.unwrap();
-        assert_eq!(meta.id, "task-001");
+        assert_eq!(meta.id, "build-mvp");
         assert_eq!(meta.title, "Build MVP");
         assert_eq!(meta.note_type, "task");
-        assert_eq!(meta.parent, Some("project-root".to_string()));
-        assert_eq!(meta.tags, vec!["dev", "mvp"]);
-        assert_eq!(meta.path, "notes/task-001.typ");
+        assert!(meta.parent.is_none());
     }
 
     #[test]
-    fn test_extract_simple_note() {
+    fn test_hierarchy_from_filename() {
         let source = r#"
-#import "vault.typ": *
+#show: card.with(
+  title: "Closures",
+)
+"#;
+        let result =
+            extract_from_file(source, "notes/programming--rust--closures.typ").unwrap();
+        let meta = result.metadata.unwrap();
+        assert_eq!(meta.id, "programming/rust/closures");
+        assert_eq!(meta.parent, Some("programming/rust".to_string()));
+        assert_eq!(meta.title, "Closures");
+    }
 
+    #[test]
+    fn test_legacy_id_ignored() {
+        let source = r#"
 #show: note.with(
-  id: "my-note",
+  id: "old-id",
   title: "My Note",
 )
-
-= My Note
-
-Hello world.
 "#;
         let result = extract_from_file(source, "notes/my-note.typ").unwrap();
         let meta = result.metadata.unwrap();
+        // id comes from filename, not from show rule
         assert_eq!(meta.id, "my-note");
-        assert_eq!(meta.title, "My Note");
-        assert_eq!(meta.note_type, "note");
-        assert!(meta.parent.is_none());
-        assert!(meta.tags.is_empty());
     }
 
     #[test]
-    fn test_extract_xlinks_named() {
+    fn test_extract_xlinks() {
         let source = r#"
-#import "vault.typ": *
+#show: note.with(title: "Note A")
 
-#show: note.with(id: "a", title: "Note A")
-
-See #xlink(id: "note-b") and #xlink(id: "note-c").
-"#;
-        let result = extract_from_file(source, "notes/a.typ").unwrap();
-        assert_eq!(result.links, vec!["note-b", "note-c"]);
-    }
-
-    #[test]
-    fn test_extract_xlinks_positional() {
-        let source = r#"
-#import "vault.typ": *
-
-#show: note.with(id: "a", title: "Note A")
-
-See #xlink("note-b") and also #xlink("note-c").
+See #xlink("note-b") and #xlink("note-c").
 "#;
         let result = extract_from_file(source, "notes/a.typ").unwrap();
         assert_eq!(result.links, vec!["note-b", "note-c"]);
@@ -256,30 +242,21 @@ See #xlink("note-b") and also #xlink("note-c").
 
     #[test]
     fn test_no_show_rule() {
-        let source = r#"
-= Just a heading
-
-Some content without show rule.
-"#;
+        let source = "= Just a heading\n\nSome content.\n";
         let result = extract_from_file(source, "notes/plain.typ").unwrap();
         assert!(result.metadata.is_none());
-        assert!(result.links.is_empty());
     }
 
     #[test]
     fn test_extra_fields() {
         let source = r#"
-#import "vault.typ": *
-
 #show: card.with(
-  id: "card-1",
   title: "Closures",
   difficulty: "hard",
 )
 "#;
         let result = extract_from_file(source, "notes/card-1.typ").unwrap();
         let meta = result.metadata.unwrap();
-        assert_eq!(meta.note_type, "card");
         assert_eq!(
             meta.extra.get("difficulty").and_then(|v| v.as_str()),
             Some("hard")
@@ -290,20 +267,51 @@ Some content without show rule.
     fn test_empty_file() {
         let result = extract_from_file("", "notes/empty.typ").unwrap();
         assert!(result.metadata.is_none());
-        assert!(result.links.is_empty());
     }
 
     #[test]
-    fn test_created_field() {
+    fn test_tags_extracted_as_extra() {
         let source = r#"
-#show: note.with(
-  id: "dated",
-  title: "Dated Note",
-  created: "2026-03-18",
+#show: card.with(
+  title: "Closures",
+  tags: ("rust", "fp"),
 )
 "#;
-        let result = extract_from_file(source, "notes/dated.typ").unwrap();
+        let result = extract_from_file(source, "notes/closures.typ").unwrap();
         let meta = result.metadata.unwrap();
-        assert_eq!(meta.created, Some("2026-03-18".to_string()));
+        let tags = meta.extra.get("tags").unwrap().as_array().unwrap();
+        assert_eq!(tags.len(), 2);
+        assert_eq!(tags[0].as_str().unwrap(), "rust");
+        assert_eq!(tags[1].as_str().unwrap(), "fp");
+    }
+
+    #[test]
+    fn test_at_links_in_properties() {
+        let source = r#"
+#show: card.with(
+  title: "Closures",
+  tags: ("rust", "@programming/python"),
+  related: "@programming/rust/traits",
+)
+"#;
+        let result = extract_from_file(source, "notes/closures.typ").unwrap();
+        assert!(result.links.contains(&"programming/python".to_string()));
+        assert!(result.links.contains(&"programming/rust/traits".to_string()));
+    }
+
+    #[test]
+    fn test_at_links_combined_with_xlinks() {
+        let source = r#"
+#show: card.with(
+  title: "Closures",
+  related: "@programming/rust/traits",
+)
+
+See also #xlink("programming/python").
+"#;
+        let result = extract_from_file(source, "notes/closures.typ").unwrap();
+        assert_eq!(result.links.len(), 2);
+        assert!(result.links.contains(&"programming/rust/traits".to_string()));
+        assert!(result.links.contains(&"programming/python".to_string()));
     }
 }

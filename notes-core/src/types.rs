@@ -42,3 +42,25 @@ pub struct VaultConfig {
     pub notes_dir: PathBuf,
     pub assets_dir: PathBuf,
 }
+
+/// Convert a relative file path to a note id.
+/// "notes/programming--rust--closures.typ" → "programming/rust/closures"
+pub fn path_to_id(rel_path: &str) -> String {
+    rel_path
+        .trim_start_matches("notes/")
+        .trim_end_matches(".typ")
+        .replace("--", "/")
+}
+
+/// Convert a note id to a relative file path.
+/// "programming/rust/closures" → "notes/programming--rust--closures.typ"
+pub fn id_to_path(id: &str) -> String {
+    format!("notes/{}.typ", id.replace("/", "--"))
+}
+
+/// Get the parent id from a note id.
+/// "programming/rust/closures" → Some("programming/rust")
+/// "programming" → None
+pub fn id_to_parent(id: &str) -> Option<String> {
+    id.rfind('/').map(|i| id[..i].to_string())
+}

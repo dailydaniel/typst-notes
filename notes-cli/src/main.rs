@@ -16,17 +16,11 @@ pub enum Commands {
         #[arg(default_value = ".")]
         path: String,
     },
-    /// Create a new note
+    /// Create a new note (supports hierarchy: "parent/child/note")
     New {
         title: String,
         #[arg(long, default_value = "note")]
         r#type: String,
-        #[arg(long)]
-        id: Option<String>,
-        #[arg(long)]
-        parent: Option<String>,
-        #[arg(long, value_delimiter = ',')]
-        tags: Vec<String>,
     },
     /// Rebuild the notes index
     Index,
@@ -71,9 +65,7 @@ fn main() {
 
     let result = match cli.command {
         Commands::Init { path } => commands::init(&path),
-        Commands::New { title, r#type, id, parent, tags } => {
-            commands::new_note(&title, &r#type, id.as_deref(), parent.as_deref(), &tags)
-        }
+        Commands::New { title, r#type } => commands::new_note(&title, &r#type),
         Commands::Index => commands::index(),
         Commands::Sync => commands::sync(),
         Commands::Compile { file, format, output } => {
