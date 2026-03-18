@@ -36,10 +36,9 @@ impl Vault {
 )
 
 // Note types
-#let note = (vault.note-type)("note")
-#let task = (vault.note-type)("task")
-#let card = (vault.note-type)("card")
 #let tag = (vault.note-type)("tag")
+#let note = (vault.note-type)("note", fields: (tags: (), links: ()))
+#let task = (vault.note-type)("task", fields: (tags: (), priority: ""))
 
 // Cross-references
 #let xlink = vault.xlink
