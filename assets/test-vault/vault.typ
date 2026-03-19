@@ -7,7 +7,7 @@
 // Note types
 #let tag = (vault.note-type)("tag")
 #let note = (vault.note-type)("note", fields: (tags: (), links: ()))
-#let task = (vault.note-type)("task", fields: (tags: (), priority: ""))
+#let task = (vault.note-type)("task", fields: (tags: (), priority: "", status: ""))
 #let report = (vault.note-type)("report", fields: (tags: ()))
 #let journal = (vault.note-type)("journal", fields: (date: "", previous: ""))
 
