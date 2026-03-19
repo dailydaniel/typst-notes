@@ -220,6 +220,7 @@ The user's `vault.typ` ties it together:
 - [x] **Journal** — daily journal entries with automatic date and previous-entry linking
 - [x] **Knowledge graph** — interactive graph visualization with vis-network
 - [x] **Design system** — warm parchment palette, Greek iconography, custom app icon
+- [ ] **Topos** — rename vault to topos (τόπος) :)
 - [ ] **Tinymist LSP** — Typst language server for diagnostics, hover, go-to-definition
 - [ ] **Programmatic compilation** — replace subprocess with `typst` Rust crate (World trait)
 - [ ] **Incremental indexing** — skip unchanged files based on mtime
