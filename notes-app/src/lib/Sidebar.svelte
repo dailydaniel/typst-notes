@@ -5,12 +5,14 @@
     onOpenNote: (id: string) => void;
     onOpenVaultTyp: () => void;
     onShowGraph: () => void;
+    onTodayJournal: () => void;
   }
 
-  let { onOpenNote, onOpenVaultTyp, onShowGraph }: Props = $props();
+  let { onOpenNote, onOpenVaultTyp, onShowGraph, onTodayJournal }: Props = $props();
 
   let allOpen = $state(true);
   let starredOpen = $state(false);
+  let journalOpen = $state(false);
 
   const sortedNotes = $derived(
     [...appState.notes].sort((a, b) => a.id.localeCompare(b.id))
@@ -18,6 +20,16 @@
 
   const sortedStarred = $derived(
     [...appState.starredNotes].sort((a, b) => a.id.localeCompare(b.id))
+  );
+
+  const hasJournal = $derived(
+    appState.vaultTypes.some((t) => t.name === "journal")
+  );
+
+  const journalNotes = $derived(
+    [...appState.notes]
+      .filter((n) => n.type === "journal")
+      .sort((a, b) => ((b as any).date ?? "").localeCompare((a as any).date ?? ""))
   );
 </script>
 
@@ -78,6 +90,40 @@
         <div class="empty">No starred notes</div>
       {/each}
     </div>
+  {/if}
+
+  <!-- Journal section (only if vault has journal type) -->
+  {#if hasJournal}
+    <div class="section-row">
+      <button class="section-btn journal-btn" onclick={() => (journalOpen = !journalOpen)}>
+        <span class="chevron" class:open={journalOpen}>&#9656;</span>
+        Journal
+        {#if journalNotes.length > 0}
+          <span class="badge">{journalNotes.length}</span>
+        {/if}
+      </button>
+      <button
+        class="today-btn"
+        onclick={onTodayJournal}
+        title="Open today's journal"
+      >Today</button>
+    </div>
+    {#if journalOpen}
+      <div class="note-list">
+        {#each journalNotes as note (note.id)}
+          <button
+            class="note-item"
+            class:active={note.id === appState.currentNoteId}
+            onclick={() => onOpenNote(note.id)}
+          >
+            <span class="note-id">{note.title}</span>
+            <span class="note-type">{(note as any).date ?? ""}</span>
+          </button>
+        {:else}
+          <div class="empty">No journal entries</div>
+        {/each}
+      </div>
+    {/if}
   {/if}
 
   <!-- Graph button -->
@@ -149,6 +195,36 @@
     background: rgba(0,0,0,0.06);
     padding: 0 6px;
     border-radius: 8px;
+  }
+  .section-row {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-row .section-btn {
+    border-bottom: none;
+  }
+  .journal-btn {
+    flex: 1;
+  }
+  .today-btn {
+    flex-shrink: 0;
+    margin-right: 8px;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    color: var(--accent);
+    cursor: pointer;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .today-btn:hover {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
   }
   .note-list {
     padding: 2px 4px;

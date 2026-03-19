@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-03-19T18:48:57.234544+00:00",
+  "generated_at": "2026-03-19T19:45:57.497292+00:00",
   "notes": [
     {
       "id": "welcome",
@@ -80,6 +80,26 @@
       "parent": "programming/rust",
       "created": null,
       "path": "notes/programming--rust--traits.typ"
+    },
+    {
+      "id": "2026-03-15",
+      "title": "test journal note",
+      "type": "journal",
+      "parent": null,
+      "created": null,
+      "path": "notes/2026-03-15.typ",
+      "date": "2026-03-15",
+      "previous": ""
+    },
+    {
+      "id": "2026-03-19",
+      "title": "2026-03-19",
+      "type": "journal",
+      "parent": null,
+      "created": null,
+      "path": "notes/2026-03-19.typ",
+      "date": "2026-03-19",
+      "previous": "@2026-03-15"
     }
   ],
   "links": [
@@ -102,6 +122,16 @@
       "source": "programming/rust/closures",
       "target": "programming/python",
       "source_path": "notes/programming--rust--closures.typ"
+    },
+    {
+      "source": "2026-03-15",
+      "target": "programming",
+      "source_path": "notes/2026-03-15.typ"
+    },
+    {
+      "source": "2026-03-19",
+      "target": "2026-03-15",
+      "source_path": "notes/2026-03-19.typ"
     }
   ]
 }

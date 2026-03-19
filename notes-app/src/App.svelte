@@ -90,6 +90,8 @@
         const vaultTypPath = appState.vault!.root + "/vault.typ";
         await writeTextFile(vaultTypPath, appState.currentContent);
         appState.markSaved();
+        appState.vaultTypes = await api.getVaultTypes();
+        await refreshNotes();
         return;
       }
       await api.saveNote(appState.currentNoteId, appState.currentContent);
@@ -163,6 +165,40 @@
       await handleOpenNote(meta.id);
     } catch (e) {
       error = `Failed to create note: ${e}`;
+    }
+  }
+
+  async function handleTodayJournal() {
+    const today = new Date().toISOString().slice(0, 10);
+    // Check if journal for today already exists
+    const existing = appState.notes.find(
+      (n) => n.type === "journal" && (n as any).date === today
+    );
+    if (existing) {
+      await handleOpenNote(existing.id);
+      return;
+    }
+    try {
+      // Find the most recent journal for the "previous" link
+      const journals = appState.notes
+        .filter((n) => n.type === "journal")
+        .sort((a, b) => ((b as any).date ?? "").localeCompare((a as any).date ?? ""));
+      const lastJournal = journals[0];
+
+      // Create journal note (title = today's date)
+      const meta = await api.createNote(today, "journal");
+
+      // Fill in date and previous fields
+      let content = await api.readNote(meta.id);
+      content = content.replace('date: ""', `date: "${today}"`);
+      if (lastJournal) {
+        content = content.replace('previous: ""', `previous: "@${lastJournal.id}"`);
+      }
+      await api.saveNote(meta.id, content);
+      await refreshNotes();
+      await handleOpenNote(meta.id);
+    } catch (e) {
+      error = `Failed to create journal: ${e}`;
     }
   }
 
@@ -242,6 +278,7 @@
         onOpenNote={handleOpenNote}
         onOpenVaultTyp={openVaultTyp}
         onShowGraph={handleShowGraph}
+        onTodayJournal={handleTodayJournal}
       />
     {/if}
 
