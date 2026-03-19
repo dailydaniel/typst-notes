@@ -406,8 +406,8 @@
   }
 
   .error-bar {
-    background: #fef2f2;
-    border-bottom: 1px solid #fecaca;
+    background: rgba(180, 65, 51, 0.06);
+    border-bottom: 1px solid rgba(180, 65, 51, 0.15);
     color: var(--danger);
     padding: 6px 12px;
     font-size: 13px;

@@ -1,16 +1,27 @@
 :root {
+  /* Layout */
   --sidebar-w: 250px;
   --toolbar-h: 44px;
-  --bg: #ffffff;
-  --bg-secondary: #f7f7f7;
-  --border: #e0e0e0;
-  --text: #1a1a1a;
-  --text-secondary: #666666;
-  --accent: #2563eb;
-  --accent-hover: #1d4ed8;
-  --danger: #dc2626;
+
+  /* Warm Parchment Palette */
+  --bg: #faf8f5;
+  --surface: #fffefb;
+  --bg-secondary: #f0ece4;
+  --border: #e0dbd2;
+  --text: #2c2825;
+  --text-secondary: #8a8078;
+  --text-muted: #b5ada4;
+  --accent: #5c4a3a;
+  --accent-hover: #4a3a2c;
+  --danger: #b44133;
+
+  /* Radii */
   --radius: 6px;
   --radius-sm: 4px;
+
+  /* Font stacks */
+  --font-mono: 'SF Mono', Menlo, Monaco, 'Cascadia Mono', 'Courier New', monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
 }
 
 *,
@@ -27,7 +38,7 @@ html, body {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: var(--font-sans);
   font-size: 14px;
   color: var(--text);
   background: var(--bg);
@@ -55,7 +66,7 @@ button:hover {
 }
 
 button:active {
-  background: #eee;
+  background: var(--bg-secondary);
 }
 
 input, select {
@@ -71,7 +82,7 @@ input, select {
 
 input:focus, select:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+  box-shadow: 0 0 0 2px rgba(92, 74, 58, 0.15);
 }
 
 /* Scrollbar */
@@ -82,11 +93,11 @@ input:focus, select:focus {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #ccc;
+  background: var(--border);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #aaa;
+  background: var(--text-muted);
 }
 
 /* Modal backdrop */
@@ -101,12 +112,13 @@ input:focus, select:focus {
 }
 
 .modal {
-  background: var(--bg);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 24px;
   min-width: 400px;
   max-width: 500px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 32px rgba(44, 40, 37, 0.12);
 }
 
 .modal h3 {
@@ -154,11 +166,11 @@ input:focus, select:focus {
 }
 
 .btn-danger:hover {
-  background: #b91c1c;
+  background: #9a3529;
 }
 
 kbd {
-  font-family: inherit;
+  font-family: var(--font-mono);
   font-size: 11px;
   padding: 1px 5px;
   background: var(--bg-secondary);
@@ -172,7 +184,7 @@ kbd {
   border: 1px solid var(--border) !important;
   border-radius: var(--radius-sm) !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
-  font-family: 'SF Mono', Menlo, Monaco, monospace !important;
+  font-family: var(--font-mono) !important;
   font-size: 13px !important;
 }
 
@@ -182,11 +194,11 @@ kbd {
 
 .cm-tooltip-autocomplete ul li[aria-selected] {
   background: var(--accent) !important;
-  color: white !important;
+  color: var(--surface) !important;
 }
 
 .cm-completionLabel {
-  font-family: 'SF Mono', Menlo, Monaco, monospace;
+  font-family: var(--font-mono);
 }
 
 .cm-completionDetail {

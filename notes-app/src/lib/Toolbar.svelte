@@ -18,10 +18,24 @@
       title="Toggle sidebar"
       onclick={() => (appState.sidebarOpen = !appState.sidebarOpen)}
     >≡</button>
-    <button onclick={onOpenVault} title="Open Vault (⌘O)">Open</button>
+    <button class="icon-btn" onclick={onOpenVault} title="Open Vault (⌘O)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+      </svg>
+    </button>
     {#if appState.isVaultOpen}
-      <button onclick={onNewNote} title="New Note (⌘N)">New</button>
-      <button onclick={onSearch} title="Search (⌘K)">Search</button>
+      <button class="icon-btn" onclick={onNewNote} title="New Note (⌘N)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+      </button>
+      <button class="icon-btn" onclick={onSearch} title="Search (⌘K)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="7"/>
+          <line x1="16" y1="16" x2="21" y2="21"/>
+        </svg>
+      </button>
     {/if}
   </div>
 
@@ -56,7 +70,20 @@
         class:active={appState.previewOpen}
         onclick={() => (appState.previewOpen = !appState.previewOpen)}
         title={appState.previewOpen ? "Hide preview" : "Show preview"}
-      >&#x25C9;</button>
+      >
+        {#if appState.previewOpen}
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 12c2.5-5 6.5-8 10-8s7.5 3 10 8c-2.5 5-6.5 8-10 8s-7.5-3-10-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        {:else}
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 12c2.5-5 6.5-8 10-8s7.5 3 10 8c-2.5 5-6.5 8-10 8s-7.5-3-10-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+            <line x1="4" y1="20" x2="20" y2="4"/>
+          </svg>
+        {/if}
+      </button>
     {/if}
     {#if appState.currentNoteId}
       <button class="icon-btn" onclick={onToggleActions} title="Actions">···</button>
@@ -109,6 +136,8 @@
     line-height: 1;
     border: none;
     background: none;
+    display: flex;
+    align-items: center;
   }
   .icon-btn:hover {
     background: var(--bg-secondary);
@@ -136,7 +165,7 @@
     height: 18px;
     border-radius: 9px;
     border: none;
-    background: #ccc;
+    background: var(--border);
     padding: 0;
     cursor: pointer;
     transition: background 0.2s;
@@ -151,8 +180,8 @@
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    background: white;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    background: var(--surface);
+    box-shadow: 0 1px 2px rgba(44, 40, 37, 0.15);
     transition: transform 0.2s;
   }
   .switch-track.active .switch-thumb {

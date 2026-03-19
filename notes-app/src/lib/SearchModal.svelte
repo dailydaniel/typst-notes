@@ -129,11 +129,12 @@
 
 <style>
   .search-modal {
-    background: var(--bg);
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-radius: var(--radius);
     width: 500px;
     max-height: 400px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 8px 32px rgba(44, 40, 37, 0.15);
     display: flex;
     flex-direction: column;
     overflow: hidden;

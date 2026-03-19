@@ -46,9 +46,10 @@
 
   <!-- All Notes accordion -->
   <button class="section-btn" onclick={() => (allOpen = !allOpen)}>
-    <span class="chevron" class:open={allOpen}>&#9656;</span>
+    <span class="section-icon">Σ</span>
     All Notes
     <span class="badge">{appState.notes.length}</span>
+    <span class="chevron" class:open={allOpen}>&#9656;</span>
   </button>
   {#if allOpen}
     <div class="note-list">
@@ -69,11 +70,12 @@
 
   <!-- Starred accordion -->
   <button class="section-btn" onclick={() => (starredOpen = !starredOpen)}>
-    <span class="chevron" class:open={starredOpen}>&#9656;</span>
+    <span class="section-icon star-icon">★</span>
     Starred
     {#if sortedStarred.length > 0}
       <span class="badge">{sortedStarred.length}</span>
     {/if}
+    <span class="chevron" class:open={starredOpen}>&#9656;</span>
   </button>
   {#if starredOpen}
     <div class="note-list">
@@ -96,11 +98,12 @@
   {#if hasJournal}
     <div class="section-row">
       <button class="section-btn journal-btn" onclick={() => (journalOpen = !journalOpen)}>
-        <span class="chevron" class:open={journalOpen}>&#9656;</span>
+        <span class="section-icon">Δ</span>
         Journal
         {#if journalNotes.length > 0}
           <span class="badge">{journalNotes.length}</span>
         {/if}
+        <span class="chevron" class:open={journalOpen}>&#9656;</span>
       </button>
       <button
         class="today-btn"
@@ -128,7 +131,7 @@
 
   <!-- Graph button -->
   <button class="section-btn" onclick={onShowGraph}>
-    <span class="section-icon">G</span>
+    <span class="section-icon">Γ</span>
     Graph
   </button>
 </div>
@@ -160,29 +163,36 @@
     letter-spacing: 0.3px;
   }
   .section-btn:hover {
-    background: rgba(0,0,0,0.04);
+    background: rgba(44, 40, 37, 0.04);
   }
   .section-btn.active {
-    background: rgba(37, 99, 235, 0.08);
+    background: rgba(92, 74, 58, 0.08);
     color: var(--accent);
   }
   .vault-btn {
     text-transform: none;
     font-weight: 500;
-    font-family: 'SF Mono', Menlo, Monaco, monospace;
+    font-family: var(--font-mono);
     font-size: 13px;
   }
   .section-icon {
     width: 16px;
     text-align: center;
-    font-weight: 700;
-    font-size: 11px;
+    font-weight: 600;
+    font-size: 13px;
+    font-family: var(--font-mono);
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+  .star-icon {
+    font-size: 16px;
   }
   .chevron {
     display: inline-block;
     width: 12px;
     font-size: 10px;
     transition: transform 0.15s;
+    flex-shrink: 0;
   }
   .chevron.open {
     transform: rotate(90deg);
@@ -192,7 +202,7 @@
     font-size: 11px;
     font-weight: 400;
     color: var(--text-secondary);
-    background: rgba(0,0,0,0.06);
+    background: rgba(44, 40, 37, 0.06);
     padding: 0 6px;
     border-radius: 8px;
   }
@@ -210,21 +220,19 @@
   .today-btn {
     flex-shrink: 0;
     margin-right: 8px;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 600;
-    padding: 2px 8px;
-    border: 1px solid var(--border);
+    padding: 2px 6px;
+    border: none;
     border-radius: var(--radius-sm);
-    background: var(--bg);
+    background: none;
     color: var(--accent);
     cursor: pointer;
     text-transform: none;
     letter-spacing: 0;
   }
   .today-btn:hover {
-    background: var(--accent);
-    color: white;
-    border-color: var(--accent);
+    background: rgba(92, 74, 58, 0.08);
   }
   .note-list {
     padding: 2px 4px;
@@ -245,21 +253,21 @@
     gap: 8px;
   }
   .note-item:hover {
-    background: rgba(0,0,0,0.05);
+    background: rgba(44, 40, 37, 0.05);
   }
   .note-item.active {
     background: var(--accent);
-    color: white;
+    color: var(--surface);
   }
   .note-item.active .note-type {
-    color: rgba(255,255,255,0.7);
+    color: rgba(255, 254, 251, 0.7);
   }
   .note-id {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     flex: 1;
-    font-family: 'SF Mono', Menlo, Monaco, monospace;
+    font-family: var(--font-mono);
     font-size: 12px;
   }
   .note-type {

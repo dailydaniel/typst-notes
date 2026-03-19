@@ -80,10 +80,10 @@
     position: absolute;
     top: var(--toolbar-h);
     right: 12px;
-    background: var(--bg);
+    background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 4px 16px rgba(44, 40, 37, 0.1);
     min-width: 180px;
     padding: 4px;
     z-index: 51;
@@ -108,7 +108,7 @@
     color: var(--danger);
   }
   .menu-item.danger:hover {
-    background: #fef2f2;
+    background: rgba(180, 65, 51, 0.08);
   }
   hr {
     border: none;

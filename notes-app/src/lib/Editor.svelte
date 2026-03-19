@@ -63,7 +63,7 @@
       }),
       EditorView.theme({
         "&": { height: "100%", fontSize: "14px" },
-        ".cm-scroller": { overflow: "auto", fontFamily: "'SF Mono', Menlo, Monaco, monospace" },
+        ".cm-scroller": { overflow: "auto", fontFamily: "var(--font-mono)" },
         ".cm-content": { padding: "8px 0" },
         ".cm-gutters": { borderRight: "1px solid var(--border)", background: "var(--bg-secondary)" },
       }),
@@ -144,7 +144,7 @@
   /* Vim status bar */
   .editor-container :global(.cm-vim-panel) {
     padding: 2px 8px;
-    font-family: 'SF Mono', Menlo, Monaco, monospace;
+    font-family: var(--font-mono);
     font-size: 12px;
     background: var(--bg-secondary);
     border-top: 1px solid var(--border);
@@ -152,14 +152,14 @@
   }
   /* Visual mode selection */
   .editor-container :global(.cm-selectionBackground) {
-    background: rgba(37, 99, 235, 0.25) !important;
+    background: rgba(92, 74, 58, 0.2) !important;
   }
   .editor-container :global(.cm-editor.cm-focused .cm-selectionBackground) {
-    background: rgba(37, 99, 235, 0.3) !important;
+    background: rgba(92, 74, 58, 0.25) !important;
   }
   /* Vim cursor in normal mode */
   .editor-container :global(.cm-fat-cursor) {
-    background: rgba(0, 0, 0, 0.7) !important;
-    color: white !important;
+    background: rgba(44, 40, 37, 0.7) !important;
+    color: var(--surface) !important;
   }
 </style>
