@@ -1,8 +1,25 @@
 import type { VaultInfo, VaultTypeInfo, NoteMetadata } from "./types";
 
-const STARRED_KEY = "typst-notes-starred";
-const LAST_VAULT_KEY = "typst-notes-last-vault";
-const VIM_MODE_KEY = "typst-notes-vim-mode";
+const STARRED_KEY = "typos-starred";
+const LAST_VAULT_KEY = "typos-last-vault";
+const VIM_MODE_KEY = "typos-vim-mode";
+
+// Migrate from old keys
+function migrateLocalStorage() {
+  const migrations: [string, string][] = [
+    ["typst-notes-starred", STARRED_KEY],
+    ["typst-notes-last-vault", LAST_VAULT_KEY],
+    ["typst-notes-vim-mode", VIM_MODE_KEY],
+  ];
+  for (const [oldKey, newKey] of migrations) {
+    const val = localStorage.getItem(oldKey);
+    if (val !== null && localStorage.getItem(newKey) === null) {
+      localStorage.setItem(newKey, val);
+      localStorage.removeItem(oldKey);
+    }
+  }
+}
+migrateLocalStorage();
 
 function loadStarred(): Set<string> {
   try {

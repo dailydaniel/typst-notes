@@ -1,8 +1,16 @@
-# typst-notes
+<p align="center">
+  <img src="assets/logo/typos-mark.svg" width="128" height="128" alt="typos logo">
+</p>
 
-A note-taking system built on [Typst](https://typst.app/) instead of Markdown. Notes are plain `.typ` files with built-in support for typed metadata, cross-references, backlinks, and knowledge graphs — all powered by Typst's own type system.
+<h1 align="center">typos</h1>
 
-Instead of reinventing frontmatter parsers, Dataview-style query languages, and custom renderers, typst-notes lets Typst do what it already does: functions, types, and content transformations. The tooling layer (Rust) handles AST extraction and indexing, while the Typst framework handles rendering.
+<p align="center">A note-taking system built on <a href="https://typst.app/">Typst</a> instead of Markdown.</p>
+
+---
+
+Notes are plain `.typ` files with built-in support for typed metadata, cross-references, backlinks, and knowledge graphs — all powered by Typst's own type system.
+
+Instead of reinventing frontmatter parsers, Dataview-style query languages, and custom renderers, typos lets Typst do what it already does: functions, types, and content transformations. The tooling layer (Rust) handles AST extraction and indexing, while the Typst framework handles rendering.
 
 ## Architecture
 
@@ -27,7 +35,7 @@ A native desktop app built with Tauri 2, Svelte 5, and CodeMirror 6. Editor with
 
 | Platform | Download |
 |----------|----------|
-| macOS (Apple Silicon) | [typst-notes_0.1.0_aarch64.dmg](https://github.com/dailydaniel/typst-notes/releases/latest) |
+| macOS (Apple Silicon) | [typos_0.1.0_aarch64.dmg](https://github.com/dailydaniel/typst-notes/releases/latest) |
 
 For other platforms, build from source (see below).
 

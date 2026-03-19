@@ -54,12 +54,12 @@ fn main() {
             let package_path = resolve_package_path(app);
 
             if let Some(ref p) = typst_binary {
-                eprintln!("[typst-notes] typst binary: {}", p.display());
+                eprintln!("[typos] typst binary: {}", p.display());
             } else {
-                eprintln!("[typst-notes] typst binary: using PATH");
+                eprintln!("[typos] typst binary: using PATH");
             }
             if let Some(ref p) = package_path {
-                eprintln!("[typst-notes] package path: {}", p.display());
+                eprintln!("[typos] package path: {}", p.display());
             }
 
             let state = app.state::<AppState>();
