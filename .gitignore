@@ -3,3 +3,8 @@ target/
 node_modules/
 notes-app/dist/
 notes-app/src-tauri/binaries/
+.DS_Store
+assets/plan/
+assets/docs/
+assets/*.md
+assets/*.pdf
