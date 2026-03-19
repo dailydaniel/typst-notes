@@ -1,2 +1,4 @@
 target/
 .claude/
+node_modules/
+notes-app/dist/

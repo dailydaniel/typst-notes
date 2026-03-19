@@ -2,5 +2,6 @@
 members = [
     "notes-core",
     "notes-cli",
+    "notes-app/src-tauri",
 ]
 resolver = "2"

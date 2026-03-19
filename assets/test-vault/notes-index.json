@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-03-18T21:59:51.588888+00:00",
+  "generated_at": "2026-03-19T08:06:37.279356+00:00",
   "notes": [
     {
       "id": "welcome",
@@ -19,35 +19,6 @@
       "path": "notes/programming.typ"
     },
     {
-      "id": "programming/rust",
-      "title": "rust",
-      "type": "note",
-      "parent": "programming",
-      "created": null,
-      "path": "notes/programming--rust.typ"
-    },
-    {
-      "id": "programming/rust/closures",
-      "title": "closures",
-      "type": "card",
-      "parent": "programming/rust",
-      "created": null,
-      "path": "notes/programming--rust--closures.typ",
-      "tags": [
-        "rust",
-        "fp",
-        "@programming/python"
-      ]
-    },
-    {
-      "id": "programming/rust/traits",
-      "title": "traits",
-      "type": "note",
-      "parent": "programming/rust",
-      "created": null,
-      "path": "notes/programming--rust--traits.typ"
-    },
-    {
       "id": "programming/python",
       "title": "python",
       "type": "note",
@@ -64,22 +35,6 @@
       "path": "notes/build-mvp.typ"
     },
     {
-      "id": "tech-report",
-      "title": "tech report",
-      "type": "report",
-      "parent": null,
-      "created": null,
-      "path": "notes/tech-report.typ"
-    },
-    {
-      "id": "tech-report",
-      "title": "tech report",
-      "type": "report",
-      "parent": null,
-      "created": null,
-      "path": "notes/tech-report.typ"
-    },
-    {
       "id": "add-tauri-app",
       "title": "add tauri app",
       "type": "task",
@@ -88,18 +43,55 @@
       "path": "notes/add-tauri-app.typ",
       "priority": "",
       "tags": []
+    },
+    {
+      "id": "technical-report",
+      "title": "tech report",
+      "type": "report",
+      "parent": null,
+      "created": null,
+      "path": "notes/technical-report.typ"
+    },
+    {
+      "id": "programming/rs",
+      "title": "rust",
+      "type": "note",
+      "parent": "programming",
+      "created": null,
+      "path": "notes/programming--rs.typ"
+    },
+    {
+      "id": "programming/rs/closures",
+      "title": "closures",
+      "type": "card",
+      "parent": "programming/rs",
+      "created": null,
+      "path": "notes/programming--rs--closures.typ",
+      "tags": [
+        "rust",
+        "fp",
+        "@programming/python"
+      ]
+    },
+    {
+      "id": "programming/rs/traits",
+      "title": "traits",
+      "type": "note",
+      "parent": "programming/rs",
+      "created": null,
+      "path": "notes/programming--rs--traits.typ"
     }
   ],
   "links": [
     {
-      "source": "programming/rust/closures",
-      "target": "programming/rust",
-      "source_path": "notes/programming--rust--closures.typ"
+      "source": "programming/rs/closures",
+      "target": "programming/rs",
+      "source_path": "notes/programming--rs--closures.typ"
     },
     {
-      "source": "programming/rust/closures",
+      "source": "programming/rs/closures",
       "target": "programming/python",
-      "source_path": "notes/programming--rust--closures.typ"
+      "source_path": "notes/programming--rs--closures.typ"
     }
   ]
 }
