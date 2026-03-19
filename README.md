@@ -224,5 +224,6 @@ The user's `vault.typ` ties it together:
 - [ ] **Tinymist LSP** — Typst language server for diagnostics, hover, go-to-definition
 - [ ] **Programmatic compilation** — replace subprocess with `typst` Rust crate (World trait)
 - [ ] **Incremental indexing** — skip unchanged files based on mtime
-- [ ] **Dark mode** — dark variant of the parchment palette
+- [ ] **Dark preview** — dark theme for HTML preview (CSS injection into iframe)
+- [ ] **Dark mode** — full dark variant of the parchment palette (UI + editor + preview)
 - [ ] **iOS support** — via Tauri v2 mobile
