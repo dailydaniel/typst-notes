@@ -2,5 +2,5 @@
 
 #show: report.with(
   title: "tech report",
-  tags: ,
+  tags: (),
 )

@@ -1,0 +1,168 @@
+:root {
+  --sidebar-w: 250px;
+  --toolbar-h: 44px;
+  --bg: #ffffff;
+  --bg-secondary: #f7f7f7;
+  --border: #e0e0e0;
+  --text: #1a1a1a;
+  --text-secondary: #666666;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --danger: #dc2626;
+  --radius: 6px;
+  --radius-sm: 4px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+#app {
+  height: 100%;
+}
+
+button {
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  padding: 4px 12px;
+  color: var(--text);
+  transition: background 0.15s;
+}
+
+button:hover {
+  background: var(--bg-secondary);
+}
+
+button:active {
+  background: #eee;
+}
+
+input, select {
+  font-family: inherit;
+  font-size: inherit;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  outline: none;
+  color: var(--text);
+  background: var(--bg);
+}
+
+input:focus, select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #aaa;
+}
+
+/* Modal backdrop */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal {
+  background: var(--bg);
+  border-radius: var(--radius);
+  padding: 24px;
+  min-width: 400px;
+  max-width: 500px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.modal h3 {
+  margin-bottom: 16px;
+  font-size: 16px;
+}
+
+.modal .field {
+  margin-bottom: 12px;
+}
+
+.modal .field label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.modal .field input,
+.modal .field select {
+  width: 100%;
+}
+
+.modal .actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.btn-primary:hover {
+  background: var(--accent-hover);
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: white;
+  border-color: var(--danger);
+}
+
+.btn-danger:hover {
+  background: #b91c1c;
+}
+
+kbd {
+  font-family: inherit;
+  font-size: 11px;
+  padding: 1px 5px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--text-secondary);
+}

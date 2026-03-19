@@ -4,6 +4,6 @@ notes/programming--python.typ
 notes/build-mvp.typ
 notes/add-tauri-app.typ
 notes/technical-report.typ
-notes/programming--rs.typ
-notes/programming--rs--closures.typ
-notes/programming--rs--traits.typ
+notes/programming--rust.typ
+notes/programming--rust--closures.typ
+notes/programming--rust--traits.typ

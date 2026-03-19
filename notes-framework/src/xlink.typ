@@ -6,7 +6,7 @@
     let notes = index.at("notes", default: ())
     let target = notes.find(n => n.at("id", default: "") == id)
     if target != none {
-      let display = if body == none { target.at("title", default: id) } else { body }
+      let display = if body == none { id } else { body }
       link(target.at("path", default: ""), display)
     } else {
       text(fill: red)[#id (not found)]

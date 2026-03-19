@@ -188,9 +188,6 @@ pub fn compile_note(state: State<AppState>, id: String) -> Result<String, String
         let output_path = vault.default_output_path("html");
 
         vault
-            .reindex_if_stale()
-            .map_err(|e| e.to_string())?;
-        vault
             .compile_note(&note_path, &output_path, "html")
             .map_err(|e| e.to_string())?;
 

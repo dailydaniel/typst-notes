@@ -10,13 +10,21 @@
     "tauri": "tauri"
   },
   "dependencies": {
+    "@codemirror/commands": "^6.10.3",
+    "@codemirror/language": "^6.12.2",
+    "@codemirror/state": "^6.6.0",
+    "@codemirror/view": "^6.40.0",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-dialog": "^2",
-    "@tauri-apps/plugin-fs": "^2"
+    "@tauri-apps/plugin-fs": "^2",
+    "codemirror": "^6.0.2",
+    "codemirror-lang-typst": "^0.4.0",
+    "vite-plugin-top-level-await": "^1.6.0",
+    "vite-plugin-wasm": "^3.6.0"
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^2",
     "@sveltejs/vite-plugin-svelte": "^5",
+    "@tauri-apps/cli": "^2",
     "svelte": "^5",
     "vite": "^6"
   }

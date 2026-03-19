@@ -227,13 +227,50 @@ The user's `vault.typ` ties it together:
 
 The optional `fields` parameter defines default fields for `notes new`. When creating a note of that type, the CLI generates these fields with their default values. The `--type` flag is validated against the types defined here.
 
+## Desktop App (Tauri)
+
+A native desktop app built with Tauri 2, Svelte 5, and CodeMirror 6.
+
+### Prerequisites
+
+- [Rust toolchain](https://rustup.rs/)
+- [Node.js](https://nodejs.org/) (v18+)
+- Typst framework installed as a local package (see Installation above)
+
+### Development
+
+```bash
+cd notes-app
+npm install
+npx tauri dev
+```
+
+This starts the Vite dev server and launches the Tauri window with hot reload.
+
+### Production build
+
+```bash
+cd notes-app
+npx tauri build
+```
+
+The compiled app bundle will be in `notes-app/src-tauri/target/release/bundle/`.
+
+### Keyboard shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| `Cmd+S` | Save current note |
+| `Cmd+K` | Search notes |
+| `Cmd+O` | Open vault |
+
 ## Roadmap
 
 - [x] **Compile & watch** — `notes compile` and `notes watch` via typst subprocess
 - [x] **Type validation** — CLI validates `--type` against vault.typ definitions, generates typed fields
 - [x] **Note rename** — `notes rename` with automatic reference updates
 - [ ] **Programmatic compilation** — replace subprocess with `typst` Rust crate (World trait)
-- [ ] **Tauri app** — desktop GUI with editor, preview, search (Svelte + Vite)
+- [x] **Tauri app** — desktop GUI with editor, preview, search (Svelte + Vite)
 - [ ] **iOS support** — via Tauri v2 mobile
 - [ ] **Graphviz rendering** — `diagraph` integration for visual knowledge graphs
 - [ ] **Incremental indexing** — skip unchanged files based on mtime

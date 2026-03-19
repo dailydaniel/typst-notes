@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-03-19T08:06:37.279356+00:00",
+  "generated_at": "2026-03-19T10:18:13.260016+00:00",
   "notes": [
     {
       "id": "welcome",
@@ -20,7 +20,7 @@
     },
     {
       "id": "programming/python",
-      "title": "python",
+      "title": "programming",
       "type": "note",
       "parent": "programming",
       "created": null,
@@ -50,23 +50,24 @@
       "type": "report",
       "parent": null,
       "created": null,
-      "path": "notes/technical-report.typ"
+      "path": "notes/technical-report.typ",
+      "tags": []
     },
     {
-      "id": "programming/rs",
+      "id": "programming/rust",
       "title": "rust",
       "type": "note",
       "parent": "programming",
       "created": null,
-      "path": "notes/programming--rs.typ"
+      "path": "notes/programming--rust.typ"
     },
     {
-      "id": "programming/rs/closures",
+      "id": "programming/rust/closures",
       "title": "closures",
-      "type": "card",
-      "parent": "programming/rs",
+      "type": "note",
+      "parent": "programming/rust",
       "created": null,
-      "path": "notes/programming--rs--closures.typ",
+      "path": "notes/programming--rust--closures.typ",
       "tags": [
         "rust",
         "fp",
@@ -74,24 +75,24 @@
       ]
     },
     {
-      "id": "programming/rs/traits",
+      "id": "programming/rust/traits",
       "title": "traits",
       "type": "note",
-      "parent": "programming/rs",
+      "parent": "programming/rust",
       "created": null,
-      "path": "notes/programming--rs--traits.typ"
+      "path": "notes/programming--rust--traits.typ"
     }
   ],
   "links": [
     {
-      "source": "programming/rs/closures",
-      "target": "programming/rs",
-      "source_path": "notes/programming--rs--closures.typ"
+      "source": "programming/rust/closures",
+      "target": "programming/rust",
+      "source_path": "notes/programming--rust--closures.typ"
     },
     {
-      "source": "programming/rs/closures",
+      "source": "programming/rust/closures",
       "target": "programming/python",
-      "source_path": "notes/programming--rs--closures.typ"
+      "source_path": "notes/programming--rust--closures.typ"
     }
   ]
 }

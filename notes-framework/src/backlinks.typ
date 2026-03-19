@@ -12,7 +12,7 @@
     for bl in incoming {
       let source = notes.find(n => n.at("id", default: "") == bl.at("source", default: ""))
       if source != none {
-        [- #link(source.at("path", default: ""))[#source.at("title", default: "?")] _(#source.at("type", default: "?"))_]
+        [- #link(source.at("path", default: ""))[#source.at("id", default: "?")] _(#source.at("type", default: "?"))_]
       }
     }
   }

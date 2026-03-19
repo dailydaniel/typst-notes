@@ -1,8 +1,8 @@
 #import "../vault.typ": *
 
-#show: card.with(
+#show: note.with(
   title: "closures",
   tags: ("rust", "fp", "@programming/python"),
 )
 
-See also #xlink("programming/rs").
+See also #xlink("programming/rust").
