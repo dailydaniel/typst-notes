@@ -205,7 +205,13 @@ The user's `vault.typ` ties it together:
 - [x] **Type validation** — CLI validates `--type` against vault.typ definitions
 - [x] **Note rename** — `notes rename` with automatic reference updates
 - [x] **Typst bundling** — typst binary as Tauri sidecar, framework as bundled resources
+- [x] **Autocomplete** — note ID suggestions for `@` references and `#xlink()`
+- [x] **Vim mode** — toggleable vim keybindings with `:w`, `:q`, `:wq`
+- [x] **Journal** — daily journal entries with automatic date and previous-entry linking
+- [x] **Knowledge graph** — interactive graph visualization with vis-network
+- [x] **Design system** — warm parchment palette, Greek iconography, custom app icon
+- [ ] **Tinymist LSP** — Typst language server for diagnostics, hover, go-to-definition
 - [ ] **Programmatic compilation** — replace subprocess with `typst` Rust crate (World trait)
-- [ ] **iOS support** — via Tauri v2 mobile
-- [ ] **Graphviz rendering** — `diagraph` integration for visual knowledge graphs
 - [ ] **Incremental indexing** — skip unchanged files based on mtime
+- [ ] **Dark mode** — dark variant of the parchment palette
+- [ ] **iOS support** — via Tauri v2 mobile
