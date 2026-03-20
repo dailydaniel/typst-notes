@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-03-20T09:17:01.358884+00:00",
+  "generated_at": "2026-03-20T13:32:00.181938+00:00",
   "notes": [
     {
       "id": "welcome",
@@ -102,6 +102,47 @@
       "previous": "@2026-03-15"
     },
     {
+      "id": "task1",
+      "title": "task1",
+      "type": "task",
+      "parent": null,
+      "created": null,
+      "path": "notes/task1.typ",
+      "priority": "low",
+      "status": "doing",
+      "tags": []
+    },
+    {
+      "id": "work",
+      "title": "work",
+      "type": "note",
+      "parent": null,
+      "created": null,
+      "path": "notes/work.typ",
+      "links": [],
+      "tags": []
+    },
+    {
+      "id": "work/job1",
+      "title": "job1",
+      "type": "note",
+      "parent": "work",
+      "created": null,
+      "path": "notes/work--job1.typ",
+      "links": [],
+      "tags": []
+    },
+    {
+      "id": "work/petp1",
+      "title": "petp1",
+      "type": "note",
+      "parent": "work",
+      "created": null,
+      "path": "notes/work--petp1.typ",
+      "links": [],
+      "tags": []
+    },
+    {
       "id": "2026-03-20",
       "title": "2026-03-20",
       "type": "journal",
@@ -145,7 +186,67 @@
     },
     {
       "source": "2026-03-20",
+      "target": "task1",
+      "source_path": "notes/2026-03-20.typ"
+    },
+    {
+      "source": "2026-03-20",
+      "target": "work/job1",
+      "source_path": "notes/2026-03-20.typ"
+    },
+    {
+      "source": "2026-03-20",
+      "target": "add-tauri-app",
+      "source_path": "notes/2026-03-20.typ"
+    },
+    {
+      "source": "2026-03-20",
+      "target": "work/petp1",
+      "source_path": "notes/2026-03-20.typ"
+    },
+    {
+      "source": "2026-03-20",
+      "target": "task1",
+      "source_path": "notes/2026-03-20.typ"
+    },
+    {
+      "source": "2026-03-20",
+      "target": "work/job1",
+      "source_path": "notes/2026-03-20.typ"
+    },
+    {
+      "source": "2026-03-20",
       "target": "2026-03-19",
+      "source_path": "notes/2026-03-20.typ"
+    },
+    {
+      "source": "task1",
+      "target": "work/job1",
+      "source_path": "notes/2026-03-20.typ"
+    },
+    {
+      "source": "work/job1",
+      "target": "task1",
+      "source_path": "notes/2026-03-20.typ"
+    },
+    {
+      "source": "add-tauri-app",
+      "target": "work/petp1",
+      "source_path": "notes/2026-03-20.typ"
+    },
+    {
+      "source": "work/petp1",
+      "target": "add-tauri-app",
+      "source_path": "notes/2026-03-20.typ"
+    },
+    {
+      "source": "task1",
+      "target": "work/job1",
+      "source_path": "notes/2026-03-20.typ"
+    },
+    {
+      "source": "work/job1",
+      "target": "task1",
       "source_path": "notes/2026-03-20.typ"
     }
   ]

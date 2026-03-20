@@ -308,7 +308,7 @@ mod tests {
     #[test]
     fn test_generated_content_is_parseable() {
         let content = generate_note_content("Test Title", "task", &[("priority", "high")]);
-        let result = crate::ast::extract_from_file(&content, "notes/test-title.typ").unwrap();
+        let result = crate::ast::extract_from_file(&content, "notes/test-title.typ", &std::collections::HashMap::new()).unwrap();
         let meta = result.metadata.unwrap();
         assert_eq!(meta.id, "test-title");
         assert_eq!(meta.title, "Test Title");

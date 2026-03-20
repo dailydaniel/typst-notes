@@ -2,6 +2,7 @@ use crate::ast;
 use crate::csv_registry;
 use crate::error::NotesError;
 use crate::types::{NotesIndex, VaultConfig, VaultType};
+use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -13,6 +14,8 @@ pub struct Vault {
     pub typst_binary: Option<PathBuf>,
     /// Path to package directory for --package-path flag.
     pub package_path: Option<PathBuf>,
+    /// xlink-scope aliases parsed from vault.typ (name → also target).
+    pub scope_aliases: HashMap<String, String>,
 }
 
 impl Vault {
@@ -49,6 +52,8 @@ impl Vault {
 
 // Cross-references
 #let xlink = vault.xlink
+#let xlink-scope = vault.xlink-scope
+#let get-prop = vault.get-prop
 "#,
         )?;
 
@@ -92,6 +97,7 @@ This is your first note. Start writing!
             index: Some(index),
             typst_binary: None,
             package_path: None,
+            scope_aliases: HashMap::new(),
         })
     }
 
@@ -112,11 +118,16 @@ This is your first note. Start writing!
             root,
         };
 
+        // Parse scope aliases from vault.typ
+        let vault_source = fs::read_to_string(&vault_typ).unwrap_or_default();
+        let scope_aliases = ast::extract_scope_aliases(&vault_source);
+
         Ok(Vault {
             config,
             index: None,
             typst_binary: None,
             package_path: None,
+            scope_aliases,
         })
     }
 
@@ -153,6 +164,14 @@ This is your first note. Start writing!
         let vault_typ = self.config.root.join("vault.typ");
         let source = fs::read_to_string(&vault_typ)?;
         Ok(ast::extract_vault_types(&source))
+    }
+
+    /// Reload scope aliases from vault.typ.
+    pub fn reload_scope_aliases(&mut self) -> Result<(), NotesError> {
+        let vault_typ = self.config.root.join("vault.typ");
+        let source = fs::read_to_string(&vault_typ)?;
+        self.scope_aliases = ast::extract_scope_aliases(&source);
+        Ok(())
     }
 }
 

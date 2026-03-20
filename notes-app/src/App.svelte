@@ -95,6 +95,7 @@
         await writeTextFile(vaultTypPath, appState.currentContent);
         appState.markSaved();
         appState.vaultTypes = await api.getVaultTypes();
+        await api.reindex();
         await refreshNotes();
         return;
       }

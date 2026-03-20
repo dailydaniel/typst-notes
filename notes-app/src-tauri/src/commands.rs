@@ -111,7 +111,10 @@ pub fn init_vault(state: State<AppState>, path: String) -> Result<VaultInfo, Str
 
 #[tauri::command]
 pub fn get_vault_types(state: State<AppState>) -> Result<Vec<VaultTypeInfo>, String> {
-    with_vault(&state, |vault| {
+    with_vault_mut(&state, |vault| {
+        vault
+            .reload_scope_aliases()
+            .map_err(|e| e.to_string())?;
         vault
             .note_types()
             .map(|types| types.into_iter().map(|t| t.into()).collect())

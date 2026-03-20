@@ -1,5 +1,6 @@
 use crate::error::NotesError;
 use crate::types::{self, NoteMetadata, VaultType};
+use std::collections::HashMap;
 use typst_syntax::{ast, SyntaxNode};
 
 /// Result of parsing a single .typ file
@@ -7,66 +8,127 @@ use typst_syntax::{ast, SyntaxNode};
 pub struct AstExtraction {
     pub metadata: Option<NoteMetadata>,
     pub links: Vec<String>,
+    /// Cross-links between two notes (neither is necessarily the current file).
+    /// Created by `xlink("a", also: "b")` or xlink-scope contexts.
+    pub cross_links: Vec<(String, String)>,
+}
+
+/// Data extracted from a single xlink call
+struct XlinkData {
+    target: String,
+    also: Option<String>,
+}
+
+/// State accumulated while walking the AST
+struct WalkState {
+    show_data: Option<ShowData>,
+    links: Vec<String>,
+    cross_links: Vec<(String, String)>,
+    /// Aliases: `let name = xlink-scope.with(also: "...")` → name → also_target
+    scope_aliases: HashMap<String, String>,
 }
 
 /// Parse a .typ file and extract metadata + links from its AST.
 /// The `id` and `parent` are derived from `file_path`, not from the show rule.
-pub fn extract_from_file(source: &str, file_path: &str) -> Result<AstExtraction, NotesError> {
+/// `external_aliases` are scope aliases defined in vault.typ (imported into notes).
+pub fn extract_from_file(
+    source: &str,
+    file_path: &str,
+    external_aliases: &HashMap<String, String>,
+) -> Result<AstExtraction, NotesError> {
     let root = typst_syntax::parse(source);
-    let mut show_data = None;
-    let mut links = Vec::new();
-    walk_node(&root, &mut show_data, &mut links);
+    let mut state = WalkState {
+        show_data: None,
+        links: Vec::new(),
+        cross_links: Vec::new(),
+        scope_aliases: external_aliases.clone(),
+    };
+    walk_node(&root, &mut state, None);
 
-    let metadata = show_data.map(|(note_type, title, created, extra, property_links)| {
-        let id = types::path_to_id(file_path);
-        let parent = types::id_to_parent(&id);
-        links.extend(property_links);
-        NoteMetadata {
-            id,
-            title,
-            note_type,
-            parent,
-            created,
-            path: file_path.to_string(),
-            extra,
-        }
-    });
+    let metadata = state
+        .show_data
+        .map(|(note_type, title, created, extra, property_links)| {
+            let id = types::path_to_id(file_path);
+            let parent = types::id_to_parent(&id);
+            state.links.extend(property_links);
+            NoteMetadata {
+                id,
+                title,
+                note_type,
+                parent,
+                created,
+                path: file_path.to_string(),
+                extra,
+            }
+        });
 
-    Ok(AstExtraction { metadata, links })
+    Ok(AstExtraction {
+        metadata,
+        links: state.links,
+        cross_links: state.cross_links,
+    })
 }
 
 type ShowData = (
-    String,                                    // note_type
-    String,                                    // title
-    Option<String>,                            // created
+    String,                                     // note_type
+    String,                                     // title
+    Option<String>,                             // created
     serde_json::Map<String, serde_json::Value>, // extra
-    Vec<String>,                               // @id links from properties
+    Vec<String>,                                // @id links from properties
 );
 
-fn walk_node(
-    node: &SyntaxNode,
-    show_data: &mut Option<ShowData>,
-    links: &mut Vec<String>,
-) {
+fn walk_node(node: &SyntaxNode, state: &mut WalkState, scope_also: Option<&str>) {
+    // Collect let-bindings for scope aliases
+    if let Some(let_binding) = node.cast::<ast::LetBinding>() {
+        if let Some((name, also)) = extract_scope_alias(let_binding) {
+            state.scope_aliases.insert(name, also);
+        }
+    }
+
+    // Extract show-rule metadata
     if let Some(show_rule) = node.cast::<ast::ShowRule>() {
         if show_rule.selector().is_none() {
             let transform = show_rule.transform();
             if let ast::Expr::FuncCall(call) = transform {
                 if let Some(data) = extract_note_constructor(call) {
-                    *show_data = Some(data);
+                    state.show_data = Some(data);
                 }
             }
         }
     }
 
+    // Handle function calls
     if let Some(func_call) = node.cast::<ast::FuncCall>() {
-        if let Some(target_id) = extract_xlink(func_call) {
-            links.push(target_id);
+        // Check if it's an xlink
+        if let Some(xlink_data) = extract_xlink(func_call) {
+            state.links.push(xlink_data.target.clone());
+
+            let effective_also = xlink_data.also.as_deref().or(scope_also);
+            if let Some(also) = effective_also {
+                state.links.push(also.to_string());
+                // Bidirectional cross-link between target and also
+                state
+                    .cross_links
+                    .push((xlink_data.target.clone(), also.to_string()));
+                state
+                    .cross_links
+                    .push((also.to_string(), xlink_data.target));
+            }
+            return;
+        }
+
+        // Check if it's xlink-scope or a scope alias
+        if let Some(also_target) = extract_xlink_scope_call(func_call, &state.scope_aliases) {
+            // Walk children with the scope's also context
+            for child in node.children() {
+                walk_node(child, state, Some(&also_target));
+            }
+            return;
         }
     }
 
     for child in node.children() {
-        walk_node(child, show_data, links);
+        walk_node(child, state, scope_also);
     }
 }
 
@@ -107,11 +169,17 @@ fn extract_note_constructor(call: ast::FuncCall) -> Option<ShowData> {
         }
     }
 
-    Some((type_name, title.unwrap_or_default(), created, extra, property_links))
+    Some((
+        type_name,
+        title.unwrap_or_default(),
+        created,
+        extra,
+        property_links,
+    ))
 }
 
-/// Extract target id from xlink("id") or xlink(id: "id").
-fn extract_xlink(call: ast::FuncCall) -> Option<String> {
+/// Extract target id and optional `also` from xlink("id", also: "other").
+fn extract_xlink(call: ast::FuncCall) -> Option<XlinkData> {
     let ast::Expr::Ident(ident) = call.callee() else {
         return None;
     };
@@ -119,19 +187,100 @@ fn extract_xlink(call: ast::FuncCall) -> Option<String> {
         return None;
     }
 
+    let mut target = None;
+    let mut also = None;
+
     for arg in call.args().items() {
         match arg {
             ast::Arg::Pos(expr) => {
-                if let Some(s) = expr_to_string(expr) {
-                    return Some(s);
+                if target.is_none() {
+                    target = expr_to_string(expr);
                 }
             }
-            ast::Arg::Named(named) => {
-                if named.name().as_str() == "id" {
+            ast::Arg::Named(named) => match named.name().as_str() {
+                "id" => {
+                    if target.is_none() {
+                        target = expr_to_string(named.expr());
+                    }
+                }
+                "also" => {
+                    also = expr_to_string(named.expr());
+                }
+                _ => {}
+            },
+            _ => {}
+        }
+    }
+
+    Some(XlinkData {
+        target: target?,
+        also,
+    })
+}
+
+/// Detect `xlink-scope(also: "...")` calls or calls to known scope aliases.
+/// Returns the `also` target if this is a scope call.
+fn extract_xlink_scope_call(
+    call: ast::FuncCall,
+    aliases: &HashMap<String, String>,
+) -> Option<String> {
+    let callee_name = match call.callee() {
+        ast::Expr::Ident(ident) => ident.as_str().to_string(),
+        _ => return None,
+    };
+
+    // Direct xlink-scope call
+    if callee_name == "xlink-scope" {
+        for arg in call.args().items() {
+            if let ast::Arg::Named(named) = arg {
+                if named.name().as_str() == "also" {
                     return expr_to_string(named.expr());
                 }
             }
-            _ => {}
+        }
+        return None;
+    }
+
+    // Aliased call
+    aliases.get(&callee_name).cloned()
+}
+
+/// Detect `let name = xlink-scope.with(also: "...")` and return (name, also_target).
+fn extract_scope_alias(binding: ast::LetBinding) -> Option<(String, String)> {
+    let init = binding.init()?;
+
+    // Get the binding name
+    let name = match binding.kind() {
+        ast::LetBindingKind::Normal(pattern) => {
+            let bindings = pattern.bindings();
+            let first = bindings.first()?;
+            first.as_str().to_string()
+        }
+        ast::LetBindingKind::Closure(ident) => ident.as_str().to_string(),
+    };
+
+    // Pattern: xlink-scope.with(also: "...")
+    let ast::Expr::FuncCall(call) = init else {
+        return None;
+    };
+    let ast::Expr::FieldAccess(fa) = call.callee() else {
+        return None;
+    };
+    if fa.field().as_str() != "with" {
+        return None;
+    }
+    let ast::Expr::Ident(ident) = fa.target() else {
+        return None;
+    };
+    if ident.as_str() != "xlink-scope" {
+        return None;
+    }
+
+    for arg in call.args().items() {
+        if let ast::Arg::Named(named) = arg {
+            if named.name().as_str() == "also" {
+                return Some((name, expr_to_string(named.expr())?));
+            }
         }
     }
     None
@@ -177,6 +326,26 @@ fn expr_to_json_value(expr: ast::Expr) -> Option<serde_json::Value> {
             Some(serde_json::Value::Array(items))
         }
         _ => None,
+    }
+}
+
+/// Parse vault.typ source and extract xlink-scope aliases.
+/// Finds `#let name = xlink-scope.with(also: "...")` patterns.
+pub fn extract_scope_aliases(source: &str) -> HashMap<String, String> {
+    let root = typst_syntax::parse(source);
+    let mut aliases = HashMap::new();
+    walk_for_scope_aliases(&root, &mut aliases);
+    aliases
+}
+
+fn walk_for_scope_aliases(node: &SyntaxNode, aliases: &mut HashMap<String, String>) {
+    if let Some(let_binding) = node.cast::<ast::LetBinding>() {
+        if let Some((name, also)) = extract_scope_alias(let_binding) {
+            aliases.insert(name, also);
+        }
+    }
+    for child in node.children() {
+        walk_for_scope_aliases(child, aliases);
     }
 }
 
@@ -298,7 +467,7 @@ mod tests {
   title: "Build MVP",
 )
 "#;
-        let result = extract_from_file(source, "notes/build-mvp.typ").unwrap();
+        let result = extract_from_file(source, "notes/build-mvp.typ", &HashMap::new()).unwrap();
         let meta = result.metadata.unwrap();
         assert_eq!(meta.id, "build-mvp");
         assert_eq!(meta.title, "Build MVP");
@@ -314,7 +483,7 @@ mod tests {
 )
 "#;
         let result =
-            extract_from_file(source, "notes/programming--rust--closures.typ").unwrap();
+            extract_from_file(source, "notes/programming--rust--closures.typ", &HashMap::new()).unwrap();
         let meta = result.metadata.unwrap();
         assert_eq!(meta.id, "programming/rust/closures");
         assert_eq!(meta.parent, Some("programming/rust".to_string()));
@@ -329,7 +498,7 @@ mod tests {
   title: "My Note",
 )
 "#;
-        let result = extract_from_file(source, "notes/my-note.typ").unwrap();
+        let result = extract_from_file(source, "notes/my-note.typ", &HashMap::new()).unwrap();
         let meta = result.metadata.unwrap();
         // id comes from filename, not from show rule
         assert_eq!(meta.id, "my-note");
@@ -342,14 +511,92 @@ mod tests {
 
 See #xlink("note-b") and #xlink("note-c").
 "#;
-        let result = extract_from_file(source, "notes/a.typ").unwrap();
+        let result = extract_from_file(source, "notes/a.typ", &HashMap::new()).unwrap();
         assert_eq!(result.links, vec!["note-b", "note-c"]);
+        assert!(result.cross_links.is_empty());
+    }
+
+    #[test]
+    fn test_xlink_with_also() {
+        let source = r#"
+#show: note.with(title: "Journal")
+
+Working on #xlink("task1", also: "work/job1").
+"#;
+        let result = extract_from_file(source, "notes/journal.typ", &HashMap::new()).unwrap();
+        // Links from current file: task1 and work/job1
+        assert!(result.links.contains(&"task1".to_string()));
+        assert!(result.links.contains(&"work/job1".to_string()));
+        // Cross-links: task1 ↔ work/job1
+        assert!(result.cross_links.contains(&("task1".to_string(), "work/job1".to_string())));
+        assert!(result.cross_links.contains(&("work/job1".to_string(), "task1".to_string())));
+    }
+
+    #[test]
+    fn test_xlink_scope_direct() {
+        let source = r#"
+#show: note.with(title: "Journal")
+
+#xlink-scope(also: "work/job1")[
+  Task one: #xlink("task1")
+  Task two: #xlink("task2")
+]
+"#;
+        let result = extract_from_file(source, "notes/journal.typ", &HashMap::new()).unwrap();
+        // Links from current file
+        assert!(result.links.contains(&"task1".to_string()));
+        assert!(result.links.contains(&"task2".to_string()));
+        assert!(result.links.contains(&"work/job1".to_string()));
+        // Cross-links: task1 ↔ job1, task2 ↔ job1
+        assert!(result.cross_links.contains(&("task1".to_string(), "work/job1".to_string())));
+        assert!(result.cross_links.contains(&("work/job1".to_string(), "task1".to_string())));
+        assert!(result.cross_links.contains(&("task2".to_string(), "work/job1".to_string())));
+        assert!(result.cross_links.contains(&("work/job1".to_string(), "task2".to_string())));
+    }
+
+    #[test]
+    fn test_xlink_scope_alias() {
+        let source = r#"
+#let current-work = xlink-scope.with(also: "work/job1")
+
+#show: note.with(title: "Journal")
+
+#current-work[
+  #xlink("task1")
+]
+"#;
+        let result = extract_from_file(source, "notes/journal.typ", &HashMap::new()).unwrap();
+        assert!(result.links.contains(&"task1".to_string()));
+        assert!(result.links.contains(&"work/job1".to_string()));
+        assert!(result.cross_links.contains(&("task1".to_string(), "work/job1".to_string())));
+    }
+
+    #[test]
+    fn test_xlink_scope_external_alias() {
+        // Alias defined in vault.typ, used in a note
+        let vault_source = r#"
+#let current-work = xlink-scope.with(also: "work/job1")
+"#;
+        let aliases = extract_scope_aliases(vault_source);
+        assert_eq!(aliases.get("current-work"), Some(&"work/job1".to_string()));
+
+        let note_source = r#"
+#show: note.with(title: "Journal")
+
+#current-work[
+  #xlink("task1")
+]
+"#;
+        let result = extract_from_file(note_source, "notes/journal.typ", &aliases).unwrap();
+        assert!(result.links.contains(&"task1".to_string()));
+        assert!(result.links.contains(&"work/job1".to_string()));
+        assert!(result.cross_links.contains(&("task1".to_string(), "work/job1".to_string())));
     }
 
     #[test]
     fn test_no_show_rule() {
         let source = "= Just a heading\n\nSome content.\n";
-        let result = extract_from_file(source, "notes/plain.typ").unwrap();
+        let result = extract_from_file(source, "notes/plain.typ", &HashMap::new()).unwrap();
         assert!(result.metadata.is_none());
     }
 
@@ -361,7 +608,7 @@ See #xlink("note-b") and #xlink("note-c").
   difficulty: "hard",
 )
 "#;
-        let result = extract_from_file(source, "notes/card-1.typ").unwrap();
+        let result = extract_from_file(source, "notes/card-1.typ", &HashMap::new()).unwrap();
         let meta = result.metadata.unwrap();
         assert_eq!(
             meta.extra.get("difficulty").and_then(|v| v.as_str()),
@@ -371,7 +618,7 @@ See #xlink("note-b") and #xlink("note-c").
 
     #[test]
     fn test_empty_file() {
-        let result = extract_from_file("", "notes/empty.typ").unwrap();
+        let result = extract_from_file("", "notes/empty.typ", &HashMap::new()).unwrap();
         assert!(result.metadata.is_none());
     }
 
@@ -383,7 +630,7 @@ See #xlink("note-b") and #xlink("note-c").
   tags: ("rust", "fp"),
 )
 "#;
-        let result = extract_from_file(source, "notes/closures.typ").unwrap();
+        let result = extract_from_file(source, "notes/closures.typ", &HashMap::new()).unwrap();
         let meta = result.metadata.unwrap();
         let tags = meta.extra.get("tags").unwrap().as_array().unwrap();
         assert_eq!(tags.len(), 2);
@@ -400,7 +647,7 @@ See #xlink("note-b") and #xlink("note-c").
   related: "@programming/rust/traits",
 )
 "#;
-        let result = extract_from_file(source, "notes/closures.typ").unwrap();
+        let result = extract_from_file(source, "notes/closures.typ", &HashMap::new()).unwrap();
         assert!(result.links.contains(&"programming/python".to_string()));
         assert!(result.links.contains(&"programming/rust/traits".to_string()));
     }
@@ -494,7 +741,7 @@ See #xlink("note-b") and #xlink("note-c").
 
 See also #xlink("programming/python").
 "#;
-        let result = extract_from_file(source, "notes/closures.typ").unwrap();
+        let result = extract_from_file(source, "notes/closures.typ", &HashMap::new()).unwrap();
         assert_eq!(result.links.len(), 2);
         assert!(result.links.contains(&"programming/rust/traits".to_string()));
         assert!(result.links.contains(&"programming/python".to_string()));

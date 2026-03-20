@@ -19,7 +19,7 @@ impl Vault {
                 continue;
             }
             let source = fs::read_to_string(&abs_path)?;
-            let extraction = ast::extract_from_file(&source, rel_path)?;
+            let extraction = ast::extract_from_file(&source, rel_path, &self.scope_aliases)?;
 
             if let Some(meta) = extraction.metadata {
                 let source_id = meta.id.clone();
@@ -30,6 +30,14 @@ impl Vault {
                     links.push(NoteLink {
                         source: source_id.clone(),
                         target: target_id,
+                        source_path: source_path.clone(),
+                    });
+                }
+
+                for (cross_source, cross_target) in extraction.cross_links {
+                    links.push(NoteLink {
+                        source: cross_source,
+                        target: cross_target,
                         source_path: source_path.clone(),
                     });
                 }
@@ -69,7 +77,7 @@ impl Vault {
         let abs_path = self.config.root.join(&rel_path);
         if abs_path.exists() {
             let source = fs::read_to_string(&abs_path)?;
-            let extraction = ast::extract_from_file(&source, &rel_path)?;
+            let extraction = ast::extract_from_file(&source, &rel_path, &self.scope_aliases)?;
 
             if let Some(meta) = extraction.metadata {
                 let source_id = meta.id.clone();
@@ -80,6 +88,14 @@ impl Vault {
                     index.links.push(NoteLink {
                         source: source_id.clone(),
                         target: target_id,
+                        source_path: source_path.clone(),
+                    });
+                }
+
+                for (cross_source, cross_target) in extraction.cross_links {
+                    index.links.push(NoteLink {
+                        source: cross_source,
+                        target: cross_target,
                         source_path: source_path.clone(),
                     });
                 }
