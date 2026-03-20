@@ -45,8 +45,8 @@ export function saveNote(id: string, content: string): Promise<void> {
 
 // --- Compile ---
 
-export function compileNote(id: string): Promise<string> {
-  return invoke("compile_note", { id });
+export function compileNote(id: string, format: string = "html"): Promise<string> {
+  return invoke("compile_note", { id, format });
 }
 
 export function compileNotePdf(id: string, output: string, showMeta: boolean = true): Promise<string> {

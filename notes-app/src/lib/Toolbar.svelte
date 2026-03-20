@@ -51,8 +51,23 @@
   </div>
 
   <div class="toolbar-right">
-    <div class="vim-switch" title={appState.vimMode ? "Disable Vim mode" : "Enable Vim mode"}>
-      <span class="vim-label">VIM</span>
+    {#if appState.currentNoteId && !appState.isVaultTyp && appState.previewOpen}
+      <div class="toggle-switch" title={appState.previewFormat === "pdf" ? "Switch to HTML preview" : "Switch to PDF preview"}>
+        <span class="toggle-label">PDF</span>
+        <button
+          class="switch-track"
+          class:active={appState.previewFormat === "pdf"}
+          onclick={() => appState.togglePreviewFormat()}
+          role="switch"
+          aria-checked={appState.previewFormat === "pdf"}
+          aria-label="Toggle PDF preview"
+        >
+          <span class="switch-thumb"></span>
+        </button>
+      </div>
+    {/if}
+    <div class="toggle-switch" title={appState.vimMode ? "Disable Vim mode" : "Enable Vim mode"}>
+      <span class="toggle-label">VIM</span>
       <button
         class="switch-track"
         class:active={appState.vimMode}
@@ -148,12 +163,12 @@
   }
 
   /* iOS-style toggle switch */
-  .vim-switch {
+  .toggle-switch {
     display: flex;
     align-items: center;
     gap: 4px;
   }
-  .vim-label {
+  .toggle-label {
     font-size: 11px;
     font-weight: 600;
     color: var(--text-secondary);

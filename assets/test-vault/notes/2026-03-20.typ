@@ -7,26 +7,29 @@
 )
 
 #let current-pet-project = xlink-scope.with(
-  also: "work/petp1", 
+  also: "work/pet project", 
   props: ("status",)
 )
 
-text
+== Start working
+#align(center)[
+  Working on two tasks in the same time
+]
 
 #grid(
   columns: (1fr, 1fr),
   align(center)[
     #current-work[
-      #xlink("task1") in progress
+      14:30 start doing task \
+      #xlink("some new feature")
+      
     ]
   ],
   align(center)[
     #current-pet-project[
-      #xlink("add-tauri-app") in progress
+      14:45 started claude code session \
+      for planning pet project task \
+      #xlink("add-tauri-app")
     ]
   ]
 )
-
-#current-work[
-  #xlink("task1") in progress
-]

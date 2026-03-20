@@ -8,6 +8,15 @@
 
 ---
 
+### Recent changes (v0.2.2)
+
+- **PDF preview** — toggle between HTML and pixel-perfect PDF preview (via pdf.js); supports clickable note links
+- **xlink-scope** — cross-link two notes from a third (e.g. journal → task → project) with inline property display
+- **get-prop** — read any note's property from vault index in Typst
+- **Optional properties in PDF export** — choose whether to include metadata when sharing as PDF
+
+---
+
 Notes are plain `.typ` files with built-in support for typed metadata, cross-references, backlinks, and knowledge graphs — all powered by Typst's own type system.
 
 Instead of reinventing frontmatter parsers, Dataview-style query languages, and custom renderers, typos lets Typst do what it already does: functions, types, and content transformations. The tooling layer (Rust) handles AST extraction and indexing, while the Typst framework handles rendering.
@@ -45,7 +54,7 @@ A native desktop app built with Tauri 2, Svelte 5, and CodeMirror 6. Editor with
 
 | Platform | Download |
 |----------|----------|
-| macOS (Apple Silicon) | [typos_0.2.1_aarch64.zip](https://github.com/dailydaniel/typst-notes/releases/latest) |
+| macOS (Apple Silicon) | [typos_0.2.2_aarch64.zip](https://github.com/dailydaniel/typst-notes/releases/latest) |
 
 For other platforms, build from source (see below).
 
@@ -220,6 +229,8 @@ The user's `vault.typ` ties it together:
 - [x] **Journal** — daily journal entries with automatic date and previous-entry linking
 - [x] **Knowledge graph** — interactive graph visualization with vis-network
 - [x] **Design system** — warm parchment palette, Greek iconography, custom app icon
+- [x] **xlink-scope** — cross-link notes with inline property display
+- [x] **PDF preview** — pixel-perfect PDF preview with clickable links (pdf.js)
 - [ ] **Topos** — rename vault to topos (τόπος) :)
 - [ ] **Tinymist LSP** — Typst language server for diagnostics, hover, go-to-definition
 - [ ] **Programmatic compilation** — replace subprocess with `typst` Rust crate (World trait)

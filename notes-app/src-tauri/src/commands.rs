@@ -1,3 +1,4 @@
+use base64::Engine;
 use crate::state::AppState;
 use notes_core::types::{self, NoteMetadata, VaultType};
 use notes_core::vault::Vault;
@@ -196,17 +197,27 @@ pub fn save_note(state: State<AppState>, id: String, content: String) -> Result<
 // --- Compile ---
 
 #[tauri::command]
-pub fn compile_note(state: State<AppState>, id: String) -> Result<String, String> {
+pub fn compile_note(
+    state: State<AppState>,
+    id: String,
+    format: Option<String>,
+) -> Result<String, String> {
     with_vault_mut(&state, |vault| {
+        let fmt = format.as_deref().unwrap_or("html");
         let rel_path = types::id_to_path(&id);
         let note_path = vault.config.root.join(&rel_path);
-        let output_path = vault.default_output_path("html");
+        let output_path = vault.default_output_path(fmt);
 
         vault
-            .compile_note(&note_path, &output_path, "html")
+            .compile_note(&note_path, &output_path, fmt)
             .map_err(|e| e.to_string())?;
 
-        fs::read_to_string(&output_path).map_err(|e| e.to_string())
+        if fmt == "pdf" {
+            let bytes = fs::read(&output_path).map_err(|e| e.to_string())?;
+            Ok(base64::engine::general_purpose::STANDARD.encode(&bytes))
+        } else {
+            fs::read_to_string(&output_path).map_err(|e| e.to_string())
+        }
     })
 }
 

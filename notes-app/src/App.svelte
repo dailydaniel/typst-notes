@@ -112,14 +112,26 @@
     if (appState.isVaultTyp) return;
     try {
       appState.previewLoading = true;
-      const html = await api.compileNote(id);
-      appState.previewHtml = html;
+      const result = await api.compileNote(id, appState.previewFormat);
+      appState.previewHtml = result;
     } catch (e) {
       appState.previewHtml = `<pre style="color:red;padding:16px">${e}</pre>`;
     } finally {
       appState.previewLoading = false;
     }
   }
+
+  // Recompile when preview format changes
+  let prevFormat = $state(appState.previewFormat);
+  $effect(() => {
+    const fmt = appState.previewFormat;
+    if (fmt !== prevFormat) {
+      prevFormat = fmt;
+      if (appState.currentNoteId && !appState.isVaultTyp) {
+        handleCompile(appState.currentNoteId);
+      }
+    }
+  });
 
   async function handleDelete() {
     if (!appState.currentNoteId || appState.isVaultTyp) return;

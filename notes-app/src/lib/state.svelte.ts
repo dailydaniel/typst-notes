@@ -3,6 +3,7 @@ import type { VaultInfo, VaultTypeInfo, NoteMetadata } from "./types";
 const STARRED_KEY = "typos-starred";
 const LAST_VAULT_KEY = "typos-last-vault";
 const VIM_MODE_KEY = "typos-vim-mode";
+const PREVIEW_FORMAT_KEY = "typos-preview-format";
 
 // Migrate from old keys
 function migrateLocalStorage() {
@@ -78,6 +79,14 @@ export class AppState {
   // --- Preview ---
   previewHtml = $state("");
   previewLoading = $state(false);
+  previewFormat = $state<"html" | "pdf">(
+    (localStorage.getItem(PREVIEW_FORMAT_KEY) as "html" | "pdf") || "html"
+  );
+
+  togglePreviewFormat() {
+    this.previewFormat = this.previewFormat === "html" ? "pdf" : "html";
+    localStorage.setItem(PREVIEW_FORMAT_KEY, this.previewFormat);
+  }
 
   // --- Methods ---
 

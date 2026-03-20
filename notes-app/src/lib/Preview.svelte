@@ -1,6 +1,10 @@
 <script lang="ts">
   import { onMount, onDestroy } from "svelte";
   import { appState } from "./state.svelte";
+  import { getDocument, GlobalWorkerOptions } from "pdfjs-dist";
+  import pdfWorkerUrl from "pdfjs-dist/build/pdf.worker.mjs?url";
+
+  GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
   interface Props {
     onNavigate: (id: string) => void;
@@ -8,9 +12,22 @@
 
   let { onNavigate }: Props = $props();
 
-  // Inject a script into srcdoc that posts messages for link clicks
+  let pdfContainer: HTMLDivElement | undefined = $state();
+
+  function hrefToNoteId(href: string): string | null {
+    let id = href
+      .replace(/^\.\//, "")
+      .replace(/^\//, "")
+      .replace(/\.typ$/, "")
+      .replace(/^notes\//, "")
+      .replace(/--/g, "/");
+    return id || null;
+  }
+
+  // --- HTML mode ---
+
   const previewHtml = $derived(() => {
-    if (!appState.previewHtml) return "";
+    if (!appState.previewHtml || appState.previewFormat !== "html") return "";
     const script = `<script>
       document.addEventListener('click', function(e) {
         var a = e.target.closest('a');
@@ -25,17 +42,107 @@
 
   function onMessage(e: MessageEvent) {
     if (e.data?.type !== "note-link") return;
-    const href: string = e.data.href;
-    let id = href
-      .replace(/^\.\//, "")
-      .replace(/^\//, "")
-      .replace(/\.typ$/, "")
-      .replace(/^notes\//, "")
-      .replace(/--/g, "/");
-    if (id) {
-      onNavigate(id);
+    const id = hrefToNoteId(e.data.href);
+    if (id) onNavigate(id);
+  }
+
+  // --- PDF mode ---
+
+  async function renderPdf(base64: string, container: HTMLDivElement) {
+    try {
+      container.innerHTML = "";
+
+      const binaryStr = atob(base64);
+      const bytes = new Uint8Array(binaryStr.length);
+      for (let i = 0; i < binaryStr.length; i++) {
+        bytes[i] = binaryStr.charCodeAt(i);
+      }
+
+      const doc = await getDocument({ data: bytes }).promise;
+
+      // Wait for layout to compute container width
+      let containerWidth = container.clientWidth;
+      if (containerWidth === 0) {
+        await new Promise<void>((resolve) => requestAnimationFrame(() => {
+          containerWidth = container.clientWidth;
+          resolve();
+        }));
+      }
+      if (containerWidth === 0) containerWidth = 600; // fallback
+
+      for (let i = 1; i <= doc.numPages; i++) {
+        const page = await doc.getPage(i);
+        const unscaledViewport = page.getViewport({ scale: 1 });
+        // Slight zoom to reduce visible page margins
+        const scale = (containerWidth / unscaledViewport.width) * 1.25;
+        const viewport = page.getViewport({ scale });
+        // Center the page (negative margin crops side margins equally)
+        const offsetX = (viewport.width - containerWidth) / 2;
+
+        // Page wrapper
+        const pageDiv = document.createElement("div");
+        pageDiv.style.position = "relative";
+        pageDiv.style.width = `${containerWidth}px`;
+        pageDiv.style.height = `${viewport.height}px`;
+        pageDiv.style.overflow = "hidden";
+        pageDiv.style.marginBottom = "4px";
+
+        // Canvas (retina)
+        const canvas = document.createElement("canvas");
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = Math.floor(viewport.width * dpr);
+        canvas.height = Math.floor(viewport.height * dpr);
+        canvas.style.width = `${viewport.width}px`;
+        canvas.style.height = `${viewport.height}px`;
+        canvas.style.marginLeft = `${-offsetX}px`;
+        const ctx = canvas.getContext("2d")!;
+        ctx.scale(dpr, dpr);
+
+        await page.render({ canvasContext: ctx, viewport }).promise;
+        pageDiv.appendChild(canvas);
+
+        // Clickable links from PDF annotations
+        try {
+          const annotations = await page.getAnnotations();
+          const pageHeight = unscaledViewport.height;
+          for (const annot of annotations) {
+            // annotationType 2 = LINK; url may be empty for relative paths, use unsafeUrl
+            const href = annot.url || annot.unsafeUrl;
+            if (annot.annotationType !== 2 || !href) continue;
+            // annot.rect = [x1, y1, x2, y2] in PDF coords (origin bottom-left)
+            const [x1, y1, x2, y2] = annot.rect;
+            const link = document.createElement("a");
+            link.href = href;
+            link.style.position = "absolute";
+            link.style.left = `${x1 * scale - offsetX}px`;
+            link.style.top = `${(pageHeight - y2) * scale}px`;
+            link.style.width = `${(x2 - x1) * scale}px`;
+            link.style.height = `${(y2 - y1) * scale}px`;
+            link.style.cursor = "pointer";
+            link.onclick = (e) => {
+              e.preventDefault();
+              const id = hrefToNoteId(href);
+              if (id) onNavigate(id);
+            };
+            pageDiv.appendChild(link);
+          }
+        } catch (e) {
+          console.warn("Annotation extraction failed:", e);
+        }
+
+        container.appendChild(pageDiv);
+      }
+    } catch (e) {
+      console.error("PDF render error:", e);
+      container.innerHTML = `<div style="color:red;padding:16px">PDF render error: ${e}</div>`;
     }
   }
+
+  $effect(() => {
+    if (appState.previewFormat === "pdf" && appState.previewHtml && pdfContainer) {
+      renderPdf(appState.previewHtml, pdfContainer);
+    }
+  });
 
   onMount(() => {
     window.addEventListener("message", onMessage);
@@ -59,11 +166,15 @@
     {#if appState.previewLoading}
       <div class="loading">Compiling…</div>
     {:else if appState.previewHtml}
-      <iframe
-        srcdoc={previewHtml()}
-        title="Note preview"
-        sandbox="allow-same-origin allow-scripts"
-      ></iframe>
+      {#if appState.previewFormat === "html"}
+        <iframe
+          srcdoc={previewHtml()}
+          title="Note preview"
+          sandbox="allow-same-origin allow-scripts"
+        ></iframe>
+      {:else}
+        <div class="pdf-container" bind:this={pdfContainer}></div>
+      {/if}
     {:else}
       <div class="empty">No preview available</div>
     {/if}
@@ -99,6 +210,21 @@
     width: 100%;
     height: 100%;
     border: none;
+  }
+  .pdf-container {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  .pdf-container :global(a) {
+    opacity: 0;
+    display: block;
+  }
+  .pdf-container :global(a:hover) {
+    opacity: 1;
+    background: rgba(255, 255, 0, 0.15);
+    border-radius: 2px;
   }
   .loading, .empty {
     padding: 24px;

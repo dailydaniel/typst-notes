@@ -4,4 +4,5 @@
   title: "add tauri app",
   tags: ("@build-mvp"),
   priority: "",
+  status: "planning"
 )

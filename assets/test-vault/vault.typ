@@ -15,4 +15,4 @@
 #let xlink = vault.xlink
 #let xlink-scope = vault.xlink-scope
 
-#let current-work = xlink-scope.with(also: "work/job1", props: ("priority", "status",))
+#let current-work = xlink-scope.with(also: "work/main job", props: ("priority",))
