@@ -34,7 +34,13 @@
 /// Parameters like id and parent are no longer passed in the show rule —
 /// they are derived from the filename by the Rust indexer and looked up
 /// in the index at render time.
-#let make-note-type(note-state, type-name, index, show-meta: true) = {
+#let make-note-type(note-state, type-name, index, show-meta: true, inputs: (:)) = {
+  // Allow overriding show-meta via sys.inputs (e.g. --input show-meta=false)
+  let show-meta = if "show-meta" in inputs {
+    inputs.at("show-meta") != "false"
+  } else {
+    show-meta
+  }
   (title: "", created: none, ..extra, body) => {
     // Look up this note in the index by title and type
     let notes = index.at("notes", default: ())

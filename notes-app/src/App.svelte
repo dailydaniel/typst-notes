@@ -149,13 +149,19 @@
 
   async function handleExportPdf() {
     if (!appState.currentNoteId || appState.isVaultTyp) return;
+    const showMeta = await confirm("Include properties (metadata) in the PDF?", {
+      title: "Export PDF",
+      kind: "info",
+      okLabel: "Include",
+      cancelLabel: "Without",
+    });
     const output = await save({
       defaultPath: `${appState.currentNoteId}.pdf`,
       filters: [{ name: "PDF", extensions: ["pdf"] }],
     });
     if (!output) return;
     try {
-      await api.compileNotePdf(appState.currentNoteId, output);
+      await api.compileNotePdf(appState.currentNoteId, output, showMeta);
     } catch (e) {
       error = `Failed to export PDF: ${e}`;
     }

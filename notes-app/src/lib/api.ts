@@ -49,8 +49,8 @@ export function compileNote(id: string): Promise<string> {
   return invoke("compile_note", { id });
 }
 
-export function compileNotePdf(id: string, output: string): Promise<string> {
-  return invoke("compile_note_pdf", { id, output });
+export function compileNotePdf(id: string, output: string, showMeta: boolean = true): Promise<string> {
+  return invoke("compile_note_pdf", { id, output, showMeta });
 }
 
 // --- Search & navigation ---

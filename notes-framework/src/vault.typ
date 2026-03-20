@@ -27,7 +27,7 @@
 
   let _note-type(name, show-meta: true, ..rest) = {
     // `rest` absorbs CLI-only params like `fields` — ignored by framework
-    make-note-type(note-state, name, idx, show-meta: show-meta)
+    make-note-type(note-state, name, idx, show-meta: show-meta, inputs: sys.inputs)
   }
 
   let _xlink = make-xlink(idx)

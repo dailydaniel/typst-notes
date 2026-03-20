@@ -38,6 +38,16 @@ impl Vault {
         output: &Path,
         format: &str,
     ) -> Result<(), NotesError> {
+        self.compile_note_with_options(note_path, output, format, true)
+    }
+
+    pub fn compile_note_with_options(
+        &mut self,
+        note_path: &Path,
+        output: &Path,
+        format: &str,
+        show_meta: bool,
+    ) -> Result<(), NotesError> {
         self.reindex_if_stale()?;
 
         // Ensure output directory exists
@@ -63,6 +73,10 @@ impl Vault {
 
         if format == "html" {
             cmd.arg("--features").arg("html");
+        }
+
+        if !show_meta {
+            cmd.arg("--input").arg("show-meta=false");
         }
 
         let result = cmd.output().map_err(|e| {

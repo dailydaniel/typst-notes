@@ -212,6 +212,7 @@ pub fn compile_note_pdf(
     state: State<AppState>,
     id: String,
     output: String,
+    show_meta: Option<bool>,
 ) -> Result<String, String> {
     with_vault_mut(&state, |vault| {
         let rel_path = types::id_to_path(&id);
@@ -222,7 +223,7 @@ pub fn compile_note_pdf(
             .reindex_if_stale()
             .map_err(|e| e.to_string())?;
         vault
-            .compile_note(&note_path, output_path, "pdf")
+            .compile_note_with_options(&note_path, output_path, "pdf", show_meta.unwrap_or(true))
             .map_err(|e| e.to_string())?;
 
         Ok(output)
