@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-03-21T11:38:36.895418+00:00",
+  "generated_at": "2026-03-21T13:06:29.360998+00:00",
   "notes": [
     {
       "id": "welcome",
@@ -103,6 +103,16 @@
       "previous": "@2026-03-15"
     },
     {
+      "id": "2026-03-20",
+      "title": "2026-03-20",
+      "type": "journal",
+      "parent": null,
+      "created": null,
+      "path": "notes/2026-03-20.typ",
+      "date": "2026-03-20",
+      "previous": "@2026-03-19"
+    },
+    {
       "id": "work",
       "title": "work",
       "type": "note",
@@ -142,16 +152,6 @@
       "path": "notes/work--pet project.typ",
       "links": [],
       "tags": []
-    },
-    {
-      "id": "2026-03-20",
-      "title": "2026-03-20",
-      "type": "journal",
-      "parent": null,
-      "created": null,
-      "path": "notes/2026-03-20.typ",
-      "date": "2026-03-20",
-      "previous": "@2026-03-19"
     }
   ],
   "links": [

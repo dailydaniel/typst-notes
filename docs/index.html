@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>typos — A Programmable Note-taking System</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-tertiary": "#fef8ef",
+                        "inverse-primary": "#f0d5c0",
+                        "primary-fixed": "#f8dec8",
+                        "error-container": "#fe8b70",
+                        "surface-variant": "#e2e3dd",
+                        "on-tertiary-fixed-variant": "#69665f",
+                        "on-secondary-fixed": "#463e37",
+                        "surface-tint": "#6e5b4a",
+                        "secondary": "#665d56",
+                        "surface-container-low": "#f5f3f0",
+                        "secondary-fixed-dim": "#dfd2c9",
+                        "on-tertiary-fixed": "#4c4943",
+                        "on-secondary-fixed-variant": "#635a53",
+                        "primary": "#6e5b4a",
+                        "on-primary": "#fff6f1",
+                        "on-primary-container": "#614e3e",
+                        "primary-fixed-dim": "#ead0bb",
+                        "tertiary-container": "#f8f3ea",
+                        "surface-container": "#eeeeea",
+                        "outline": "#797b77",
+                        "inverse-surface": "#0e0e0d",
+                        "error-dim": "#5c1202",
+                        "error": "#9e422c",
+                        "on-secondary-container": "#595049",
+                        "surface-bright": "#fbf9f6",
+                        "on-tertiary-container": "#5e5b55",
+                        "on-surface": "#30332f",
+                        "on-secondary": "#fff7f3",
+                        "secondary-dim": "#5a524a",
+                        "background": "#fbf9f6",
+                        "secondary-fixed": "#ede0d7",
+                        "secondary-container": "#ede0d7",
+                        "surface-dim": "#d9dbd4",
+                        "on-error": "#fff7f6",
+                        "surface-container-high": "#e8e8e3",
+                        "on-error-container": "#742410",
+                        "on-surface-variant": "#5d605b",
+                        "primary-dim": "#614f3f",
+                        "inverse-on-surface": "#9e9d9a",
+                        "tertiary-fixed": "#f8f3ea",
+                        "tertiary-dim": "#55534c",
+                        "primary-container": "#f8dec8",
+                        "tertiary": "#625f58",
+                        "surface": "#fbf9f6",
+                        "outline-variant": "#b1b3ad",
+                        "surface-container-highest": "#e2e3dd",
+                        "tertiary-fixed-dim": "#eae5dc",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed": "#4d3c2d",
+                        "on-primary-fixed-variant": "#6b5847",
+                        "on-background": "#30332f"
+                    },
+                    fontFamily: {
+                        "headline": ["Inter", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"],
+                        "mono": ["JetBrains Mono", "monospace"]
+                    },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+                },
+            },
+        }
+    </script>
+<style>
+        .parchment-glow {
+            box-shadow: 0 0 80px -20px rgba(110, 91, 74, 0.08);
+        }
+        .glass-vellum {
+            background: rgba(251, 249, 246, 0.8);
+            backdrop-filter: blur(12px);
+        }
+        body {
+            background-color: #fbf9f6;
+            color: #30332f;
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+</head>
+<body class="font-body selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<header class="w-full top-0 sticky z-50 glass-vellum">
+<div class="flex justify-between items-center max-w-7xl mx-auto px-8 py-4">
+<div class="flex-1 flex items-center gap-4">
+<img alt="typos monogram logo" class="w-8 h-8 opacity-90" src="img/typos-mark.svg"/>
+<span class="font-mono text-xl font-bold text-[#30332f] tracking-tight">typos</span>
+</div>
+<nav class="hidden md:flex justify-center gap-8 items-center">
+<a class="font-sans text-sm tracking-tight font-medium uppercase text-[#6e5b4a] border-b border-[#6e5b4a] hover:text-[#30332f] transition-colors duration-200" href="https://github.com/dailydaniel/typos">GitHub</a>
+<a class="font-sans text-sm tracking-tight font-medium uppercase text-[#5d605b] hover:text-[#30332f] transition-colors duration-200" href="https://github.com/dailydaniel/typos/releases">Releases</a>
+<a class="font-sans text-sm tracking-tight font-medium uppercase text-[#5d605b] hover:text-[#30332f] transition-colors duration-200" href="https://github.com/dailydaniel/typos#changelog">Changelog</a>
+</nav>
+<div class="flex-1 flex items-center justify-end">
+<a href="https://github.com/dailydaniel/typos/releases/latest" class="bg-primary hover:bg-primary-dim text-on-primary font-mono text-[10px] tracking-widest uppercase px-5 py-2 transition-all active:opacity-70 no-underline">
+                    Download v0.2.3
+                </a>
+</div>
+</div>
+<div class="bg-[#eeeeea] h-[1px] w-full"></div>
+</header>
+<main>
+<!-- Hero Section -->
+<section class="max-w-7xl mx-auto px-8 pt-24 pb-16 text-center">
+<div class="inline-flex items-center justify-center p-4 mb-8">
+<img alt="typos logo" class="w-20 h-20 opacity-80" src="img/typos-mark.svg"/>
+</div>
+<h1 class="font-headline text-5xl md:text-7xl font-extrabold tracking-tighter text-on-surface mb-6">
+                A note-taking system you <span class="text-primary italic font-light">program</span>, not configure.
+            </h1>
+<p class="max-w-2xl mx-auto text-on-surface-variant text-lg md:text-xl font-light mb-12 leading-relaxed">
+                Experience the precision of classical typesetting fused with the performance of modern engineering. Built on Typst and Rust for the digital scholar.
+            </p>
+<div class="flex flex-wrap justify-center gap-4">
+<a href="https://github.com/dailydaniel/typos/releases/latest" class="bg-primary text-on-primary font-mono text-xs tracking-[0.2em] uppercase px-8 py-4 flex items-center gap-3 shadow-sm hover:shadow-md transition-all no-underline">
+                    Download v0.2.3
+                </a>
+<a href="https://github.com/dailydaniel/typos" class="bg-surface-container-highest text-primary font-mono text-xs tracking-[0.2em] uppercase px-8 py-4 flex items-center gap-3 hover:bg-surface-container-high transition-all no-underline">
+                    GitHub Repository
+                </a>
+</div>
+</section>
+<!-- Product Preview -->
+<section class="max-w-6xl mx-auto px-8 py-16">
+<div class="relative bg-surface-container p-4 lg:p-12 rounded-lg parchment-glow overflow-hidden">
+<div class="flex items-center gap-2 mb-6 font-mono text-[10px] uppercase tracking-widest text-on-surface-variant">
+<span>VAULT.TYP</span>
+</div>
+<div class="shadow-2xl rounded-lg overflow-hidden border border-outline-variant/20">
+<img alt="typos app screenshot showing split view editor with Typst code and PDF preview" class="w-full h-auto" src="img/main.png"/>
+</div>
+</div>
+</section>
+<!-- Philosophy (The Three Axes) -->
+<section class="max-w-7xl mx-auto px-8 py-24">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-16 md:gap-8">
+<!-- Axis 1: Control -->
+<div class="group">
+<div class="mb-6 font-mono text-primary text-sm tracking-widest uppercase">
+<span>01 / Control</span>
+</div>
+<h3 class="font-headline text-2xl font-bold tracking-tight mb-4">Program your knowledge system.</h3>
+<p class="text-on-surface-variant leading-relaxed mb-6">
+                        Stop fighting with rigid folders. Define your own types and custom fields in <span class="font-mono bg-surface-container-high px-1 text-sm text-primary">vault.typ</span>. Your hierarchy adapts to your research, not the other way around.
+                    </p>
+<div class="bg-surface-container p-6 rounded-lg font-mono text-[11px] leading-5 text-on-surface-variant">
+<span class="text-primary">#let</span> task = (vault.note-type)(<br/>
+  <span class="text-on-surface">"task"</span>,<br/>
+  fields: (tags: (), priority: <span class="text-on-surface">""</span>)<br/>
+)
+                    </div>
+</div>
+<!-- Axis 2: Rigor -->
+<div class="group">
+<div class="mb-6 font-mono text-primary text-sm tracking-widest uppercase">
+<span>02 / Rigor</span>
+</div>
+<h3 class="font-headline text-2xl font-bold tracking-tight mb-4">The precision of typesetting.</h3>
+<p class="text-on-surface-variant leading-relaxed mb-6">
+                        Experience mathematical rigor with the performance of Rust and Tauri. Monospace is a first-class citizen, ensuring your code, data, and citations are rendered with academic honesty.
+                    </p>
+<div class="flex gap-4">
+<div class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container text-primary">
+<span class="font-bold">Σ</span>
+</div>
+<div class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container text-primary">
+<span class="font-bold">Δ</span>
+</div>
+<div class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container text-primary">
+<span class="font-bold">Γ</span>
+</div>
+</div>
+</div>
+<!-- Axis 3: Honesty -->
+<div class="group">
+<div class="mb-6 font-mono text-primary text-sm tracking-widest uppercase">
+<span>03 / Honesty</span>
+</div>
+<h3 class="font-headline text-2xl font-bold tracking-tight mb-4">Source and preview side-by-side.</h3>
+<p class="text-on-surface-variant leading-relaxed mb-6">
+                        No hidden layers. What you write is what exists. The side-by-side preview ensures your final publication-ready document is exactly what you intended. Precision by design.
+                    </p>
+<div class="border-l-2 border-primary-container pl-6 italic text-on-surface font-light">
+                        "The written word is a technology. We treat it with the respect a craftsman gives their materials."
+                    </div>
+</div>
+</div>
+</section>
+<!-- Architecture -->
+<section class="bg-surface-container py-24">
+<div class="max-w-7xl mx-auto px-8">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+<div>
+<h2 class="font-headline text-3xl font-extrabold tracking-tighter mb-8">Technical Architecture</h2>
+<div class="space-y-6">
+<div class="flex items-start gap-4">
+<div class="font-mono text-primary pt-1">01</div>
+<div>
+<h4 class="font-mono text-sm font-bold uppercase tracking-wider mb-1">notes-app</h4>
+<p class="text-sm text-on-surface-variant">Tauri-powered desktop shell using Svelte and CodeMirror 6 for a lightweight, extensible editor.</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="font-mono text-primary pt-1">02</div>
+<div>
+<h4 class="font-mono text-sm font-bold uppercase tracking-wider mb-1">notes-core</h4>
+<p class="text-sm text-on-surface-variant">Blazing-fast Rust library handling AST parsing, content indexing, and graph relationships.</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="font-mono text-primary pt-1">03</div>
+<div>
+<h4 class="font-mono text-sm font-bold uppercase tracking-wider mb-1">notes-cli</h4>
+<p class="text-sm text-on-surface-variant">Direct terminal interface for pipeline integration and headless vault management.</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="font-mono text-primary pt-1">04</div>
+<div>
+<h4 class="font-mono text-sm font-bold uppercase tracking-wider mb-1">notes-framework</h4>
+<p class="text-sm text-on-surface-variant">Dedicated Typst package providing the styling and formatting rules for your notes.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="relative">
+<div class="absolute -inset-4 bg-primary/5 rounded-full blur-3xl"></div>
+<div class="relative bg-surface p-8 border border-outline-variant/20 rounded-lg font-mono text-[12px] leading-relaxed shadow-sm">
+<div class="text-[#5d605b] mb-4">// System.Architecture.v1</div>
+<div class="space-y-1">
+<div><span class="text-primary">[UI]</span> Svelte + CodeMirror</div>
+<div><span class="text-primary">  ↓  </span> (Tauri RPC)</div>
+<div><span class="text-primary">[Core]</span> Rust Library</div>
+<div><span class="text-primary">  ↳  </span> Typst Renderer</div>
+<div><span class="text-primary">  ↳  </span> JSON Index</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Community/Download -->
+<section class="max-w-4xl mx-auto px-8 py-32 text-center">
+<h2 class="font-headline text-4xl font-extrabold tracking-tight mb-8">Start your next manuscript.</h2>
+<p class="text-on-surface-variant mb-12">Typos is free, open-source, and local-first. Your knowledge belongs to you, always.</p>
+<div class="inline-flex flex-col md:flex-row items-center gap-6">
+<a class="w-full md:w-auto px-12 py-5 bg-primary text-on-primary font-mono text-sm tracking-widest uppercase hover:bg-primary-dim transition-all no-underline" href="https://github.com/dailydaniel/typos/releases/latest">Download for macOS</a>
+<span class="relative w-full md:w-auto group">
+<span class="block px-12 py-5 bg-surface-container text-outline font-mono text-sm tracking-widest uppercase cursor-not-allowed opacity-60">Download for Linux</span>
+<span class="absolute -top-8 left-1/2 -translate-x-1/2 font-mono text-[10px] tracking-widest uppercase text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Coming soon</span>
+</span>
+</div>
+<div class="mt-12 flex justify-center gap-8 text-[10px] font-mono uppercase tracking-[0.2em] text-on-surface-variant">
+<a class="hover:text-primary transition-colors" href="https://github.com/dailydaniel/typos#readme">Documentation</a>
+<a class="hover:text-primary transition-colors" href="https://github.com/dailydaniel/typos">GitHub Repository</a>
+<a class="hover:text-primary transition-colors" href="https://github.com/dailydaniel/typos/releases">Releases</a>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full border-t border-[#b1b3ad]/15 bg-[#eeeeea]">
+<div class="flex flex-col md:flex-row justify-between items-center px-12 py-10 w-full max-w-7xl mx-auto">
+<div class="flex items-center gap-3 mb-6 md:mb-0">
+<span class="text-lg font-bold text-[#30332f] font-mono">typos</span>
+<span class="text-[#6e5b4a] font-mono text-[10px] tracking-widest uppercase">© 2026. Built for the Digital Scholar.</span>
+</div>
+<div class="flex gap-8">
+<a class="font-mono text-[10px] tracking-widest uppercase text-[#5d605b] hover:text-[#6e5b4a] transition-colors" href="https://github.com/dailydaniel/typos">Source Code</a>
+<a class="font-mono text-[10px] tracking-widest uppercase text-[#5d605b] hover:text-[#6e5b4a] transition-colors" href="https://github.com/dailydaniel/typos/blob/master/LICENSE">License</a>
+<a class="font-mono text-[10px] tracking-widest uppercase text-[#5d605b] hover:text-[#6e5b4a] transition-colors" href="https://github.com/dailydaniel/typos">GitHub</a>
+</div>
+</div>
+</footer>
+</body></html>
