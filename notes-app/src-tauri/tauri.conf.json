@@ -30,7 +30,7 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "externalBin": ["binaries/typst"],
+    "externalBin": ["binaries/typst", "binaries/tinymist"],
     "resources": {
       "../../notes-framework/typst.toml": "packages/local/notes/0.1.0/typst.toml",
       "../../notes-framework/src/*": "packages/local/notes/0.1.0/src/"

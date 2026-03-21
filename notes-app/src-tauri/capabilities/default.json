@@ -24,6 +24,14 @@
       "allow": [
         { "name": "binaries/typst", "sidecar": true }
       ]
-    }
+    },
+    {
+      "identifier": "shell:allow-spawn",
+      "allow": [
+        { "name": "binaries/tinymist", "sidecar": true }
+      ]
+    },
+    "shell:allow-stdin-write",
+    "shell:allow-kill"
   ]
 }

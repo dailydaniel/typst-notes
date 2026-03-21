@@ -33,3 +33,13 @@
     ]
   ]
 )
+
+#grid(
+  columns: (1fr, 1fr),
+  align(center)[
+    some text
+  ],
+  align(right)[
+    text aligned right with #xlink("programming")
+  ]
+)

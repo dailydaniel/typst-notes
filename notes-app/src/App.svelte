@@ -4,6 +4,8 @@
   import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
   import { appState } from "./lib/state.svelte";
   import * as api from "./lib/api";
+  import { LSPClient } from "@codemirror/lsp-client";
+  import { TauriLspTransport } from "./lib/lspTransport";
   import Toolbar from "./lib/Toolbar.svelte";
   import Sidebar from "./lib/Sidebar.svelte";
   import Editor from "./lib/Editor.svelte";
@@ -18,6 +20,39 @@
   let error = $state("");
   let graphData = $state<{ nodes: any[]; edges: any[] } | null>(null);
 
+  // --- LSP ---
+
+  let lspTransport: TauriLspTransport | null = null;
+  let lspClient = $state<LSPClient | null>(null);
+
+  async function startLsp(root: string) {
+    try {
+      const transport = new TauriLspTransport();
+      await transport.start();
+      const client = new LSPClient({ rootUri: `file://${root}` });
+      client.connect(transport);
+      await client.initializing;
+      lspTransport = transport;
+      lspClient = client;
+      console.log("[typos] LSP connected");
+    } catch (e) {
+      console.warn("[typos] LSP start failed:", e);
+      lspClient = null;
+      lspTransport = null;
+    }
+  }
+
+  async function stopLsp() {
+    if (lspClient) {
+      lspClient.disconnect();
+      lspClient = null;
+    }
+    if (lspTransport) {
+      await lspTransport.stop();
+      lspTransport = null;
+    }
+  }
+
   // --- Vault ---
 
   async function handleOpenVault() {
@@ -29,6 +64,7 @@
       appState.vaultTypes = info.types;
       appState.lastVault = info.root;
       await refreshNotes();
+      startLsp(info.root);
       // Open vault.typ in editor
       await openVaultTyp();
     } catch (e) {
@@ -257,8 +293,16 @@
 
   // --- Lifecycle ---
 
+  const currentFileUri = $derived(() => {
+    if (!appState.vault || !appState.currentNoteId) return "";
+    if (appState.isVaultTyp) return `file://${appState.vault.root}/vault.typ`;
+    const note = appState.currentNote;
+    return note ? `file://${appState.vault.root}/${note.path}` : "";
+  });
+
   onMount(() => {
     document.addEventListener("keydown", onKeydown);
+    window.addEventListener("beforeunload", stopLsp);
     // Auto-open last vault
     const last = appState.lastVault;
     if (last) {
@@ -266,10 +310,15 @@
         appState.vault = info;
         appState.vaultTypes = info.types;
         await refreshNotes();
+        startLsp(info.root);
         await openVaultTyp();
       }).catch(() => {});
     }
-    return () => document.removeEventListener("keydown", onKeydown);
+    return () => {
+      document.removeEventListener("keydown", onKeydown);
+      window.removeEventListener("beforeunload", stopLsp);
+      stopLsp();
+    };
   });
 </script>
 
@@ -316,6 +365,8 @@
             onContentChange={(text) => (appState.currentContent = text)}
             notes={appState.notes}
             vimMode={appState.vimMode}
+            lspClient={lspClient}
+            fileUri={currentFileUri()}
             onSave={handleSave}
             onClose={() => appState.resetEditor()}
           />

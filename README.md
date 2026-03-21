@@ -62,17 +62,24 @@ For other platforms, build from source (see below).
 
 - [Rust toolchain](https://rustup.rs/)
 - [Node.js](https://nodejs.org/) (v18+)
-- Typst binary — download from [GitHub releases](https://github.com/typst/typst/releases) and place in `notes-app/src-tauri/binaries/`:
+- Typst binary — download from [GitHub releases](https://github.com/typst/typst/releases)
+- Tinymist binary (Typst language server) — download from [GitHub releases](https://github.com/Myriad-Dreamin/tinymist/releases)
+
+Place both binaries in `notes-app/src-tauri/binaries/`:
 
 ```
 notes-app/src-tauri/binaries/
 ├── typst-aarch64-apple-darwin        # macOS ARM
 ├── typst-x86_64-apple-darwin         # macOS Intel
 ├── typst-x86_64-unknown-linux-gnu    # Linux
-└── typst-x86_64-pc-windows-msvc.exe  # Windows
+├── typst-x86_64-pc-windows-msvc.exe  # Windows
+├── tinymist-aarch64-apple-darwin     # macOS ARM
+├── tinymist-x86_64-apple-darwin      # macOS Intel
+├── tinymist-x86_64-unknown-linux-gnu # Linux
+└── tinymist-x86_64-pc-windows-msvc.exe # Windows
 ```
 
-You only need the binary for your current platform. The notes framework is bundled automatically from `notes-framework/`.
+You only need the binaries for your current platform. The notes framework is bundled automatically from `notes-framework/`.
 
 ### Development
 

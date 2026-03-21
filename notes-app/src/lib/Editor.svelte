@@ -5,6 +5,8 @@
   import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
   import { syntaxHighlighting, defaultHighlightStyle, bracketMatching } from "@codemirror/language";
   import { autocompletion } from "@codemirror/autocomplete";
+  import { serverCompletionSource, hoverTooltips } from "@codemirror/lsp-client";
+  import type { LSPClient } from "@codemirror/lsp-client";
   import { createNoteCompletion } from "./noteCompletion";
   import type { NoteMetadata } from "./types";
 
@@ -13,11 +15,13 @@
     onContentChange: (text: string) => void;
     notes: NoteMetadata[];
     vimMode: boolean;
+    lspClient: LSPClient | null;
+    fileUri: string;
     onSave?: () => void;
     onClose?: () => void;
   }
 
-  let { content, onContentChange, notes, vimMode, onSave, onClose }: Props = $props();
+  let { content, onContentChange, notes, vimMode, lspClient, fileUri, onSave, onClose }: Props = $props();
 
   let container: HTMLDivElement;
   let view: EditorView | undefined;
@@ -42,6 +46,9 @@
   }
 
   function createExtensions(vimExt: any) {
+    const completionSources = [createNoteCompletion(notes)];
+    if (lspClient) completionSources.push(serverCompletionSource);
+
     return [
       vimCompartment.of(vimExt),
       drawSelection(),
@@ -52,9 +59,13 @@
       bracketMatching(),
       syntaxHighlighting(defaultHighlightStyle),
       autocompletion({
-        override: [createNoteCompletion(notes)],
+        override: completionSources,
         activateOnTyping: true,
       }),
+      ...(lspClient ? [
+        lspClient.plugin(fileUri, "typst"),
+        hoverTooltips(),
+      ] : []),
       keymap.of([...defaultKeymap, ...historyKeymap]),
       EditorView.updateListener.of((update) => {
         if (update.docChanged) {

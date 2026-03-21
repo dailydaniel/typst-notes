@@ -12,6 +12,7 @@
   "dependencies": {
     "@codemirror/commands": "^6.10.3",
     "@codemirror/language": "^6.12.2",
+    "@codemirror/lsp-client": "^6.2.2",
     "@codemirror/state": "^6.6.0",
     "@codemirror/view": "^6.40.0",
     "@replit/codemirror-vim": "^6.3.0",

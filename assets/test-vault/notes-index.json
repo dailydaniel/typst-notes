@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-03-20T14:39:46.013151+00:00",
+  "generated_at": "2026-03-21T10:51:49.785346+00:00",
   "notes": [
     {
       "id": "welcome",
@@ -103,16 +103,6 @@
       "previous": "@2026-03-15"
     },
     {
-      "id": "2026-03-20",
-      "title": "2026-03-20",
-      "type": "journal",
-      "parent": null,
-      "created": null,
-      "path": "notes/2026-03-20.typ",
-      "date": "2026-03-20",
-      "previous": "@2026-03-19"
-    },
-    {
       "id": "work",
       "title": "work",
       "type": "note",
@@ -152,6 +142,16 @@
       "path": "notes/work--pet project.typ",
       "links": [],
       "tags": []
+    },
+    {
+      "id": "2026-03-20",
+      "title": "2026-03-20",
+      "type": "journal",
+      "parent": null,
+      "created": null,
+      "path": "notes/2026-03-20.typ",
+      "date": "2026-03-20",
+      "previous": "@2026-03-19"
     }
   ],
   "links": [
@@ -203,6 +203,11 @@
     {
       "source": "2026-03-20",
       "target": "work/pet project",
+      "source_path": "notes/2026-03-20.typ"
+    },
+    {
+      "source": "2026-03-20",
+      "target": "programming",
       "source_path": "notes/2026-03-20.typ"
     },
     {
