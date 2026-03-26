@@ -485,7 +485,7 @@
   }
 
   .sidebar-hidden .content {
-    grid-template-columns: 0 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
   }
 
   .preview-hidden .content {
@@ -493,7 +493,7 @@
   }
 
   .sidebar-hidden.preview-hidden .content {
-    grid-template-columns: 0 1fr;
+    grid-template-columns: 1fr;
   }
 
   .editor-pane {
