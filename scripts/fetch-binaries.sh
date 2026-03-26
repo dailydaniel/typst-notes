@@ -21,7 +21,9 @@ else
   esac
 fi
 
-BINDIR="$(cd "$(dirname "$0")/../notes-app/src-tauri/binaries" && pwd)"
+BINDIR="$(dirname "$0")/../notes-app/src-tauri/binaries"
+mkdir -p "$BINDIR"
+BINDIR="$(cd "$BINDIR" && pwd)"
 TMPDIR=$(mktemp -d)
 trap 'rm -rf "$TMPDIR"' EXIT
 
