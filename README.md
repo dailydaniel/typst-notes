@@ -266,3 +266,12 @@ The user's `vault.typ` ties it together:
 - [ ] **Programmatic compilation** — replace subprocess with `typst` Rust crate (World trait)
 - [ ] **Incremental indexing** — skip unchanged files based on mtime
 - [ ] **iOS support** — via Tauri v2 mobile
+
+## Acknowledgements
+
+- [Typst](https://github.com/typst/typst) — typesetting engine used for rendering and compilation (Apache-2.0)
+- [Tauri](https://github.com/tauri-apps/tauri) — desktop application framework (MIT or Apache-2.0)
+- [Tinymist](https://github.com/Myriad-Dreamin/tinymist) — Typst language server for autocompletion (Apache-2.0)
+- [CodeMirror](https://github.com/codemirror/dev) — code editor component (MIT)
+- [pdf.js](https://github.com/mozilla/pdf.js) — PDF rendering in preview (Apache-2.0)
+- [vis-network](https://github.com/visjs/vis-network) — knowledge graph visualization (Apache-2.0)
