@@ -73,6 +73,12 @@ A native desktop app built with Tauri 2, Svelte 5, and CodeMirror 6. Editor with
 | Linux (AppImage) | [typos_0.2.4_amd64.AppImage](https://github.com/dailydaniel/typos/releases/latest) |
 | Windows | [typos_0.2.4_x64-setup.exe](https://github.com/dailydaniel/typos/releases/latest) |
 
+> **macOS note:** The app is not yet code-signed. On first launch macOS may show "app is damaged" or "unidentified developer". To fix, run in Terminal:
+> ```
+> xattr -d com.apple.quarantine /Applications/typos.app
+> ```
+> Or: System Settings → Privacy & Security → scroll down → click "Open Anyway".
+
 ### Prerequisites (building from source)
 
 - [Rust toolchain](https://rustup.rs/)
