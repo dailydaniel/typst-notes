@@ -2,6 +2,7 @@ import type { VaultInfo, VaultTypeInfo, NoteMetadata } from "./types";
 
 const STARRED_KEY = "typos-starred";
 const LAST_VAULT_KEY = "typos-last-vault";
+const RECENT_VAULTS_KEY = "typos-recent-vaults";
 const VIM_MODE_KEY = "typos-vim-mode";
 const PREVIEW_FORMAT_KEY = "typos-preview-format";
 
@@ -112,9 +113,32 @@ export class AppState {
   set lastVault(path: string | null) {
     if (path) {
       localStorage.setItem(LAST_VAULT_KEY, path);
+      this.addRecentVault(path);
     } else {
       localStorage.removeItem(LAST_VAULT_KEY);
     }
+  }
+
+  get recentVaults(): string[] {
+    try {
+      const raw = localStorage.getItem(RECENT_VAULTS_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch {}
+    // Seed from lastVault if recent list doesn't exist yet
+    const last = localStorage.getItem(LAST_VAULT_KEY);
+    return last ? [last] : [];
+  }
+
+  addRecentVault(path: string) {
+    const recent = this.recentVaults.filter((p) => p !== path);
+    recent.unshift(path);
+    const trimmed = recent.slice(0, 5);
+    localStorage.setItem(RECENT_VAULTS_KEY, JSON.stringify(trimmed));
+  }
+
+  removeRecentVault(path: string) {
+    const recent = this.recentVaults.filter((p) => p !== path);
+    localStorage.setItem(RECENT_VAULTS_KEY, JSON.stringify(recent));
   }
 
   markSaved() {

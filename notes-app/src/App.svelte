@@ -15,6 +15,7 @@
   import RenameModal from "./lib/RenameModal.svelte";
   import ActionsMenu from "./lib/ActionsMenu.svelte";
   import GraphView from "./lib/GraphView.svelte";
+  import WelcomeScreen from "./lib/WelcomeScreen.svelte";
 
   let actionsMenuOpen = $state(false);
   let error = $state("");
@@ -58,16 +59,53 @@
   async function handleOpenVault() {
     const selected = await open({ directory: true });
     if (!selected) return;
+    await openVaultByPath(selected);
+  }
+
+  async function handleCreateVault() {
+    const selected = await open({ directory: true, title: "Choose where to create your vault" });
+    if (!selected) return;
     try {
-      const info = await api.openVault(selected);
+      const info = await api.initVault(selected);
       appState.vault = info;
       appState.vaultTypes = info.types;
       appState.lastVault = info.root;
       await refreshNotes();
       startLsp(info.root);
-      // Open vault.typ in editor
+      // Open the welcome note in editor
+      const welcome = appState.notes.find((n) => n.id === "welcome");
+      if (welcome) {
+        await handleOpenNote(welcome.id);
+      } else {
+        await openVaultTyp();
+      }
+    } catch (e) {
+      error = `Failed to create vault: ${e}`;
+    }
+  }
+
+  async function handleCloseVault() {
+    await stopLsp();
+    appState.vault = null;
+    appState.notes = [];
+    appState.vaultTypes = [];
+    appState.resetEditor();
+    graphData = null;
+    error = "";
+  }
+
+  async function openVaultByPath(path: string) {
+    try {
+      const info = await api.openVault(path);
+      appState.vault = info;
+      appState.vaultTypes = info.types;
+      appState.lastVault = info.root;
+      await refreshNotes();
+      startLsp(info.root);
       await openVaultTyp();
     } catch (e) {
+      // If a recent vault no longer exists, remove it silently
+      appState.removeRecentVault(path);
       error = `Failed to open vault: ${e}`;
     }
   }
@@ -306,13 +344,7 @@
     // Auto-open last vault
     const last = appState.lastVault;
     if (last) {
-      api.openVault(last).then(async (info) => {
-        appState.vault = info;
-        appState.vaultTypes = info.types;
-        await refreshNotes();
-        startLsp(info.root);
-        await openVaultTyp();
-      }).catch(() => {});
+      openVaultByPath(last);
     }
     return () => {
       document.removeEventListener("keydown", onKeydown);
@@ -329,6 +361,7 @@
 >
   <Toolbar
     onOpenVault={handleOpenVault}
+    onCloseVault={handleCloseVault}
     onNewNote={() => (appState.createModalOpen = true)}
     onSearch={() => (appState.searchModalOpen = true)}
     onToggleActions={() => (actionsMenuOpen = !actionsMenuOpen)}
@@ -376,10 +409,12 @@
           <p>Select a note from the sidebar or create a new one</p>
         </div>
       {:else}
-        <div class="empty-state">
-          <p>Open a vault to get started</p>
-          <button onclick={handleOpenVault}>Open Vault</button>
-        </div>
+        <WelcomeScreen
+          onOpenVault={handleOpenVault}
+          onCreateVault={handleCreateVault}
+          recentVaults={appState.recentVaults}
+          onOpenRecent={openVaultByPath}
+        />
       {/if}
     </div>
 

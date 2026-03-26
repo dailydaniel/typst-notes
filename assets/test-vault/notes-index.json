@@ -1,7 +1,15 @@
 {
   "version": 1,
-  "generated_at": "2026-03-26T16:50:47.755228+00:00",
+  "generated_at": "2026-03-26T17:03:55.463295+00:00",
   "notes": [
+    {
+      "id": "welcome",
+      "title": "Welcome",
+      "type": "note",
+      "parent": null,
+      "created": null,
+      "path": "notes/welcome.typ"
+    },
     {
       "id": "programming",
       "title": "programming",
@@ -144,14 +152,6 @@
       "path": "notes/work--pet project.typ",
       "links": [],
       "tags": []
-    },
-    {
-      "id": "welcome",
-      "title": "Welcome",
-      "type": "note",
-      "parent": null,
-      "created": null,
-      "path": "notes/welcome.typ"
     }
   ],
   "links": [
