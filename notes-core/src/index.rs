@@ -44,6 +44,10 @@ impl Vault {
             }
         }
 
+        // Deduplicate links by (source, target)
+        links.sort_by(|a, b| (&a.source, &a.target).cmp(&(&b.source, &b.target)));
+        links.dedup_by(|a, b| a.source == b.source && a.target == b.target);
+
         let count = notes.len();
         let index = NotesIndex {
             version: 1,
@@ -101,6 +105,10 @@ impl Vault {
                 }
             }
         }
+
+        // Deduplicate links by (source, target)
+        index.links.sort_by(|a, b| (&a.source, &a.target).cmp(&(&b.source, &b.target)));
+        index.links.dedup_by(|a, b| a.source == b.source && a.target == b.target);
 
         index.generated_at = chrono::Utc::now().to_rfc3339();
         self.write_index(&index)?;

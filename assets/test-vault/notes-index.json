@@ -1,15 +1,7 @@
 {
   "version": 1,
-  "generated_at": "2026-03-21T13:06:29.360998+00:00",
+  "generated_at": "2026-03-26T16:50:47.755228+00:00",
   "notes": [
-    {
-      "id": "welcome",
-      "title": "Welcome",
-      "type": "note",
-      "parent": null,
-      "created": null,
-      "path": "notes/welcome.typ"
-    },
     {
       "id": "programming",
       "title": "programming",
@@ -152,29 +144,17 @@
       "path": "notes/work--pet project.typ",
       "links": [],
       "tags": []
+    },
+    {
+      "id": "welcome",
+      "title": "Welcome",
+      "type": "note",
+      "parent": null,
+      "created": null,
+      "path": "notes/welcome.typ"
     }
   ],
   "links": [
-    {
-      "source": "programming",
-      "target": "build-mvp",
-      "source_path": "notes/programming.typ"
-    },
-    {
-      "source": "programming/rust",
-      "target": "programming/python",
-      "source_path": "notes/programming--rust.typ"
-    },
-    {
-      "source": "programming/rust/closures",
-      "target": "programming/rust",
-      "source_path": "notes/programming--rust--closures.typ"
-    },
-    {
-      "source": "programming/rust/closures",
-      "target": "programming/python",
-      "source_path": "notes/programming--rust--closures.typ"
-    },
     {
       "source": "2026-03-15",
       "target": "programming",
@@ -187,12 +167,7 @@
     },
     {
       "source": "2026-03-20",
-      "target": "some new feature",
-      "source_path": "notes/2026-03-20.typ"
-    },
-    {
-      "source": "2026-03-20",
-      "target": "work/main job",
+      "target": "2026-03-19",
       "source_path": "notes/2026-03-20.typ"
     },
     {
@@ -202,13 +177,43 @@
     },
     {
       "source": "2026-03-20",
-      "target": "work/pet project",
+      "target": "some new feature",
       "source_path": "notes/2026-03-20.typ"
     },
     {
       "source": "2026-03-20",
-      "target": "2026-03-19",
+      "target": "work/main job",
       "source_path": "notes/2026-03-20.typ"
+    },
+    {
+      "source": "2026-03-20",
+      "target": "work/pet project",
+      "source_path": "notes/2026-03-20.typ"
+    },
+    {
+      "source": "add-tauri-app",
+      "target": "work/pet project",
+      "source_path": "notes/2026-03-20.typ"
+    },
+    {
+      "source": "programming",
+      "target": "build-mvp",
+      "source_path": "notes/programming.typ"
+    },
+    {
+      "source": "programming/rust",
+      "target": "programming/python",
+      "source_path": "notes/programming--rust.typ"
+    },
+    {
+      "source": "programming/rust/closures",
+      "target": "programming/python",
+      "source_path": "notes/programming--rust--closures.typ"
+    },
+    {
+      "source": "programming/rust/closures",
+      "target": "programming/rust",
+      "source_path": "notes/programming--rust--closures.typ"
     },
     {
       "source": "some new feature",
@@ -216,13 +221,13 @@
       "source_path": "notes/2026-03-20.typ"
     },
     {
-      "source": "work/main job",
-      "target": "some new feature",
-      "source_path": "notes/2026-03-20.typ"
+      "source": "welcome",
+      "target": "programming/rust/traits",
+      "source_path": "notes/welcome.typ"
     },
     {
-      "source": "add-tauri-app",
-      "target": "work/pet project",
+      "source": "work/main job",
+      "target": "some new feature",
       "source_path": "notes/2026-03-20.typ"
     },
     {

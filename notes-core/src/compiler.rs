@@ -2,7 +2,11 @@ use crate::error::NotesError;
 use crate::vault::Vault;
 use std::fs;
 use std::path::Path;
-use std::process::Command;
+use std::process::{Command, Stdio};
+use std::time::Duration;
+use wait_timeout::ChildExt;
+
+const COMPILE_TIMEOUT: Duration = Duration::from_secs(10);
 
 impl Vault {
     /// Check if any .typ file is newer than the index and reindex if so.
@@ -79,13 +83,30 @@ impl Vault {
             cmd.arg("--input").arg("show-meta=false");
         }
 
-        let result = cmd.output().map_err(|e| {
-            NotesError::CompileError(format!("Failed to run typst: {e}"))
-        })?;
+        let mut child = cmd
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .map_err(|e| NotesError::CompileError(format!("Failed to run typst: {e}")))?;
 
-        if !result.status.success() {
-            let stderr = String::from_utf8_lossy(&result.stderr);
-            return Err(NotesError::CompileError(stderr.to_string()));
+        match child.wait_timeout(COMPILE_TIMEOUT) {
+            Ok(Some(status)) => {
+                if !status.success() {
+                    let stderr = child.stderr.take().map(|mut s| {
+                        let mut buf = String::new();
+                        std::io::Read::read_to_string(&mut s, &mut buf).ok();
+                        buf
+                    }).unwrap_or_default();
+                    return Err(NotesError::CompileError(stderr));
+                }
+            }
+            Ok(None) => {
+                let _ = child.kill();
+                return Err(NotesError::CompileError(
+                    "Typst compilation timed out (10s). Check for infinite loops.".into(),
+                ));
+            }
+            Err(e) => return Err(NotesError::CompileError(e.to_string())),
         }
 
         Ok(())
