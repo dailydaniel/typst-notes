@@ -107,7 +107,7 @@
 </nav>
 <div class="flex-1 flex items-center justify-end">
 <a href="https://github.com/dailydaniel/typos/releases/latest" class="bg-primary hover:bg-primary-dim text-on-primary font-mono text-[10px] tracking-widest uppercase px-5 py-2 transition-all active:opacity-70 no-underline">
-                    Download v0.2.3
+                    Download v0.2.4
                 </a>
 </div>
 </div>
@@ -127,7 +127,7 @@
             </p>
 <div class="flex flex-wrap justify-center gap-4">
 <a href="https://github.com/dailydaniel/typos/releases/latest" class="bg-primary text-on-primary font-mono text-xs tracking-[0.2em] uppercase px-8 py-4 flex items-center gap-3 shadow-sm hover:shadow-md transition-all no-underline">
-                    Download v0.2.3
+                    Download v0.2.4
                 </a>
 <a href="https://github.com/dailydaniel/typos" class="bg-surface-container-highest text-primary font-mono text-xs tracking-[0.2em] uppercase px-8 py-4 flex items-center gap-3 hover:bg-surface-container-high transition-all no-underline">
                     GitHub Repository
@@ -257,13 +257,28 @@
 <section class="max-w-4xl mx-auto px-8 py-32 text-center">
 <h2 class="font-headline text-4xl font-extrabold tracking-tight mb-8">Start your next manuscript.</h2>
 <p class="text-on-surface-variant mb-12">Typos is free, open-source, and local-first. Your knowledge belongs to you, always.</p>
-<div class="inline-flex flex-col md:flex-row items-center gap-6">
-<a class="w-full md:w-auto px-12 py-5 bg-primary text-on-primary font-mono text-sm tracking-widest uppercase hover:bg-primary-dim transition-all no-underline" href="https://github.com/dailydaniel/typos/releases/latest">Download for macOS</a>
-<span class="relative w-full md:w-auto group">
-<span class="block px-12 py-5 bg-surface-container text-outline font-mono text-sm tracking-widest uppercase cursor-not-allowed opacity-60">Download for Linux</span>
-<span class="absolute -top-8 left-1/2 -translate-x-1/2 font-mono text-[10px] tracking-widest uppercase text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Coming soon</span>
-</span>
+<div id="download-buttons" class="flex flex-col items-center gap-4">
+<div id="dl-mac" class="hidden flex-col md:flex-row items-center gap-4">
+<a class="px-12 py-5 bg-primary text-on-primary font-mono text-sm tracking-widest uppercase hover:bg-primary-dim transition-all no-underline" href="https://github.com/dailydaniel/typos/releases/latest">Download for macOS (Apple Silicon)</a>
+<a class="px-12 py-5 bg-surface-container-highest text-primary font-mono text-sm tracking-widest uppercase hover:bg-surface-container-high transition-all no-underline" href="https://github.com/dailydaniel/typos/releases/latest">macOS (Intel)</a>
 </div>
+<div id="dl-linux" class="hidden flex-col md:flex-row items-center gap-4">
+<a class="px-12 py-5 bg-primary text-on-primary font-mono text-sm tracking-widest uppercase hover:bg-primary-dim transition-all no-underline" href="https://github.com/dailydaniel/typos/releases/latest">Download for Linux (.deb)</a>
+<a class="px-12 py-5 bg-surface-container-highest text-primary font-mono text-sm tracking-widest uppercase hover:bg-surface-container-high transition-all no-underline" href="https://github.com/dailydaniel/typos/releases/latest">Linux (AppImage)</a>
+</div>
+<div id="dl-windows" class="hidden">
+<a class="px-12 py-5 bg-primary text-on-primary font-mono text-sm tracking-widest uppercase hover:bg-primary-dim transition-all no-underline" href="https://github.com/dailydaniel/typos/releases/latest">Download for Windows</a>
+</div>
+<a class="font-mono text-[10px] tracking-widest uppercase text-on-surface-variant hover:text-primary transition-colors mt-2" href="https://github.com/dailydaniel/typos/releases/latest">All platforms</a>
+</div>
+<script>
+(function() {
+  var ua = navigator.userAgent;
+  var id = ua.indexOf("Mac") !== -1 ? "dl-mac" : ua.indexOf("Linux") !== -1 ? "dl-linux" : ua.indexOf("Win") !== -1 ? "dl-windows" : "dl-mac";
+  var el = document.getElementById(id);
+  if (el) { el.classList.remove("hidden"); el.classList.add("flex"); }
+})();
+</script>
 <div class="mt-12 flex justify-center gap-8 text-[10px] font-mono uppercase tracking-[0.2em] text-on-surface-variant">
 <a class="hover:text-primary transition-colors" href="https://github.com/dailydaniel/typos#readme">Documentation</a>
 <a class="hover:text-primary transition-colors" href="https://github.com/dailydaniel/typos">GitHub Repository</a>
