@@ -1,6 +1,6 @@
 {
   "productName": "typos",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "identifier": "com.typos.desktop",
   "build": {
     "frontendDist": "../dist",
