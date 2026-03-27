@@ -42,6 +42,11 @@ fn resolve_package_path(app: &tauri::App) -> Option<PathBuf> {
 }
 
 fn main() {
+    // Workaround for Wayland EGL crash in AppImage (bundled libwayland-client.so conflicts with system Mesa)
+    // See: https://github.com/tauri-apps/tauri/issues/11988
+    #[cfg(target_os = "linux")]
+    std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
+
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())

@@ -40,7 +40,7 @@
       </div>
     {/if}
 
-    <span class="version">v0.2.4</span>
+    <span class="version">v0.2.5</span>
   </div>
 </div>
 

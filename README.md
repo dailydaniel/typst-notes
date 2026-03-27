@@ -8,7 +8,11 @@
 
 ---
 
-### Recent changes (v0.2.4)
+### Recent changes (v0.2.5)
+
+- **Wayland fix** — resolved EGL crash in AppImage on Wayland compositors ([#1](https://github.com/dailydaniel/typos/issues/1))
+
+### v0.2.4
 
 - **Dark mode** — warm "parchment at night" theme with syntax-aware editor colors, toggle in toolbar
 - **Welcome screen** — onboarding GUI for opening or creating vaults without CLI
